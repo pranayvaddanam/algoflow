@@ -37,11 +37,10 @@ L (Large)
 - `frontend/src/hooks/usePayrollContract.ts` (skeleton -- method calling)
 
 ## Dev Agent Record
-<!-- Filled by implementing agent during /maestro-execute -->
-- **Agent ID**:
-- **Files Created**:
-- **Files Modified**:
-- **Tests Written**:
-- **Decisions Made**:
-- **Blockers Encountered**:
-- **Completion Status**:
+- **Agent ID**: claude-opus-4-6-sprint2-wallet-hooks
+- **Files Created**: `frontend/src/hooks/useWallet.ts` (wallet wrapper hook), `frontend/src/hooks/useContractState.ts` (state polling hook), `frontend/src/hooks/usePayrollContract.ts` (contract method callers — all 10 methods), `frontend/src/components/WalletConnect.tsx` (connection UI with provider selection, error handling, retry)
+- **Files Modified**: `frontend/src/main.tsx` (WalletProvider wrapping app with KMD+Pera), `frontend/src/App.tsx` (role detection: employer address matching, wallet-gated routes)
+- **Tests Written**: None (build verification: `tsc -b` 0 errors, `vite build` PASS)
+- **Decisions Made**: (1) WalletManager created at module scope in main.tsx, outside React tree. (2) Network detection for WalletManager uses getNetwork() from algorand.ts. (3) useContractState uses refs for activeAddress to avoid stale closures in setInterval. (4) Fee pooling (2x min fee) applied to methods with inner txns: optInAsset, withdraw, updateRate, pauseStream, removeEmployee, milestonePay. Methods without inner txns (registerEmployee, resumeStream, pauseAll, getAccrued) use standard fees. (5) fund() builds atomic group: AssetTransfer + method call, as required by contract ABI.
+- **Blockers Encountered**: algosdk v3 types differ from risk resolution doc patterns — `TealKeyValue.key` is `Uint8Array` not base64 string, `TealValue.uint` is `bigint` not number, global state is `app.params.globalState` not `app.params['global-state']`. Resolved by reading actual type definitions.
+- **Completion Status**: DONE

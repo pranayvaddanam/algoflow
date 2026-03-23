@@ -20,6 +20,12 @@ export const TX_CONFIRMATION_ROUNDS = 4;
 /** Project identifier for Pera Wallet WalletConnect sessions. */
 export const PERA_WALLET_PROJECT_ID = 'algoflow';
 
+/** Interval in milliseconds for polling contract state from the chain. */
+export const POLL_INTERVAL_MS = 5000;
+
+/** Minimum fee per transaction in microAlgos. */
+export const MIN_TX_FEE = 1000n;
+
 /** Seconds in one hour — used for rate display conversions. */
 export const SECONDS_PER_HOUR = 3600;
 

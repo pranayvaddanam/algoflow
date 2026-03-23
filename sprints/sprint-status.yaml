@@ -100,7 +100,8 @@ sprints:
 
   sprint-2:
     name: "Employer Dashboard"
-    status: "backlog"
+    status: "in_progress"
+    started_at: "2026-03-23T11:00:00Z"
     goal: "Build complete employer dashboard with wallet, fund, register, manage, milestone, emergency, health, checklist"
     estimated_hours: 8-10
     depends_on: ["sprint-1"]

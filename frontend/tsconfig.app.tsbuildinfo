@@ -1,1 +1,1 @@
-{"root":["./src/app.tsx","./src/main.tsx","./src/vite-env.d.ts","./src/lib/algorand.ts","./src/lib/constants.ts","./src/lib/utils.ts","./src/types/index.ts"],"version":"5.7.3"}
+{"root":["./src/app.tsx","./src/main.tsx","./src/vite-env.d.ts","./src/components/walletconnect.tsx","./src/hooks/usecontractstate.ts","./src/hooks/usepayrollcontract.ts","./src/hooks/usewallet.ts","./src/lib/algorand.ts","./src/lib/constants.ts","./src/lib/utils.ts","./src/types/index.ts"],"version":"5.7.3"}

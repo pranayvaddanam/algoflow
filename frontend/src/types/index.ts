@@ -104,3 +104,36 @@ export interface TransactionRecord {
   /** Receiver address (if applicable). */
   receiver?: string;
 }
+
+/**
+ * Real-time stream accrual state for the StreamCounter display.
+ */
+export interface StreamState {
+  /** Current accrued amount in base units (updates every second). */
+  accrued: number;
+
+  /** Tokens per second rate (derived from salary_rate / 3600). */
+  ratePerSecond: number;
+
+  /** Whether the stream is actively accruing. */
+  isStreaming: boolean;
+}
+
+/**
+ * User role as determined by comparing activeAddress to contract employer.
+ */
+export type UserRole = 'employer' | 'employee' | 'unknown';
+
+/**
+ * Contract method call result returned by usePayrollContract hooks.
+ */
+export interface MethodCallResult {
+  /** Transaction IDs for the group. */
+  txIDs: string[];
+
+  /** Confirmed round number. */
+  confirmedRound: bigint;
+
+  /** ABI return value (if method has a return type). */
+  returnValue?: number;
+}

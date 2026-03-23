@@ -67,3 +67,13 @@ export function getAppId(): number {
 export function getAssetId(): number {
   return Number(import.meta.env.VITE_ASSET_ID) || 0;
 }
+
+/**
+ * Get the escrow (application) address for a given app ID.
+ *
+ * @param appId - The deployed application ID.
+ * @returns The application's escrow address as a string.
+ */
+export function getApplicationAddress(appId: number): string {
+  return algosdk.getApplicationAddress(appId).toString();
+}
