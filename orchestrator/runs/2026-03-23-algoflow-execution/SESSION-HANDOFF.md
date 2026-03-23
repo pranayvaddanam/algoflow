@@ -319,6 +319,24 @@ The Sprint 4 executor MUST read this file FULLY at session start. It defines:
 Sprint 4 drift score target: < 30 (ACCEPTABLE)
 Sprint 3 scored 70 (CRITICAL) — process discipline must recover
 
+### PRIORITY BUG — Fix FIRST in Sprint 4 (before any other work)
+
+**Bug**: Employer Dashboard shows "Access Denied" and Employee Dashboard shows "Not Registered" even after deploying and registering employees.
+
+**Root cause (2 parts)**:
+1. **State parsing**: `useContractState.ts` parses the `employer` global state key but may not be converting the 32-byte public key to an Algorand address string using `algosdk.encodeAddress()`. Result: `contractState.employer` is null/garbled, so the comparison `activeAddress === contractState.employer` always fails.
+2. **KMD account mismatch**: The browser KMD wallet connects as `AB3KT7CDB7S7Q7SPBZGB3VM4UHYU0CHYLS02WDFAWNCHCWPZMO57DG3HEM` but `deploy.py` deploys using a different account (`SVKR6QJYQ7WKORBLXBJK3GWBZP4QAAZC2A6JXQFSJTKHZUAPSDGEWHMQWQ`). These are different accounts in the same KMD `unencrypted-default-wallet`.
+
+**Fix plan**:
+1. In `useContractState.ts`: when parsing the `employer` byte-slice from global state, use `algosdk.encodeAddress(new Uint8Array(Buffer.from(bytes, 'base64')))` to convert to a proper address string. Verify the parsed address matches the format `[A-Z2-7]{58}`.
+2. In `App.tsx` EmployerPage: the auto-switch logic already exists. Once parsing is fixed, it should work IF the employer account is in the KMD wallet's account list.
+3. If the accounts don't match (KMD gives different account than deployer): add an "Account Selector" dropdown in WalletConnect.tsx that lists ALL accounts from the connected wallet and lets the user switch.
+4. Alternatively: in `scripts/deploy.py`, print the deployer address. In the browser, if the accounts don't match, show "Deploy was done with address X. Select this account in your wallet."
+
+**Verification**: After fix, connect KMD on landing page → navigate to /employer → should see full employer dashboard with setup checklist, contract health, employee list.
+
+**Files to modify**: `useContractState.ts` (state parsing), `App.tsx` (account switching), `WalletConnect.tsx` (account selector)
+
 ---
 
 ## Section 6: Anti-Patterns Registry (ENFORCE in Sprint 4)
