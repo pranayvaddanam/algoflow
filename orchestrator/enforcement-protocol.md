@@ -1,8 +1,41 @@
-# Maestro Enforcement Protocol v1.0
+# Maestro Enforcement Protocol v2.0
 
 <!-- This document is MANDATORY reading for every executor session -->
 <!-- Created: 2026-03-24 after Sprint 3 post-mortem -->
-<!-- Triggered by: AP-011 wave consolidation violation, event log degradation -->
+<!-- Updated: v2.0 — added health checks, multi-perspective analysis, attention re-anchoring -->
+<!-- Triggered by: AP-011 wave consolidation violation, event log degradation, urgency bias -->
+
+---
+
+## 0. CORE VALUES (Read Before Every Sprint, Every Wave)
+
+**The executor's priority ordering is NON-NEGOTIABLE:**
+
+```
+1. PROCESS ADHERENCE — logging, gates, checkpoints, agreed structure
+2. RULE COMPLIANCE — wave count contract, audit thoroughness, enforcement gates
+3. QUALITY — correctness, completeness, robustness
+4. THOROUGHNESS — audits, edge cases, verification
+5. SPEED — LAST CONCERN. Never skip process to save time.
+```
+
+**Speed is not a value. Thoroughness is.** If a logging step takes 5 minutes, take it. If a wave checkpoint takes 100 lines, write them. If an audit finds nothing but you haven't checked all 14 keywords, keep checking. NEVER optimize for speed at the expense of process.
+
+**Cost is not a constraint.** Token usage, agent count, and compute time are irrelevant. The user has explicitly stated this. Do not internalize "efficiency" as a goal.
+
+### Attention Re-Anchoring Rule (CRITICAL — fixes systemic degradation)
+
+As the session progresses and code output grows, process rules lose relative attention weight. To counter this:
+
+**Before EVERY wave spawn, the executor MUST re-read this Section 0 and verbally confirm:**
+> "Process > Rules > Quality > Thoroughness > Speed. Logging this wave fully."
+
+This is logged to the event log:
+```json
+{"ts":"...","event":"values_reanchor","wave":M,"confirmed":true}
+```
+
+If this event is missing for any wave, the Sprint Completion Gate FAILS.
 
 ---
 
@@ -336,8 +369,134 @@ Compute after each sprint for the meta-log:
 
 ---
 
+## 12. Health Check System (Run After Every Wave)
+
+After each wave completes and is logged, run this health check before proceeding:
+
+### Process Health (5 checks)
+```
+HEALTH CHECK — Wave {M}, Sprint {N}
+====================================
+1. [ ] values_reanchor event exists for this wave
+2. [ ] wave_verification event exists for this wave
+3. [ ] agent_completed event exists for every agent in this wave
+4. [ ] quality_check event exists for this wave
+5. [ ] wave checkpoint document written (50+ lines)
+
+Score: ___/5
+  5/5 = GREEN — proceed
+  3-4 = AMBER — fix missing items, then proceed
+  0-2 = RED — STOP. Something is systemically wrong.
+```
+
+### Behavioral Health (3 checks)
+```
+6. [ ] No process steps were skipped "for efficiency"
+7. [ ] No wave/story consolidation occurred without user approval
+8. [ ] All catch blocks have console.error logging
+
+Score: ___/3
+```
+
+### Log to meta-log.jsonl:
+```json
+{"ts":"...","category":"health_check","sprint":N,"wave":M,
+ "process_score":5,"behavioral_score":3,"total":8,"grade":"GREEN"}
+```
+
+---
+
+## 13. Multi-Perspective Analysis Framework
+
+Beyond quantitative (drift scores) and qualitative (8 dimensions), add these perspectives:
+
+### Structural Perspective
+*"Is the system's architecture sound?"*
+
+| Check | Question |
+|-------|----------|
+| Coupling | Do components depend on each other's internals? |
+| Cohesion | Does each file do one thing well? |
+| Layering | Are hooks, components, and lib properly separated? |
+| Naming | Do names communicate intent clearly? |
+| File size | Are any files > 300 lines (split needed)? |
+
+### Behavioral Perspective
+*"Does the system do what the spec says?"*
+
+| Check | Question |
+|-------|----------|
+| AC coverage | Is every acceptance criterion verifiable in the code? |
+| Edge cases | Are boundary conditions handled (0, null, max)? |
+| Error paths | Does every async operation have error handling? |
+| State transitions | Do all state machines have defined transitions? |
+| Race conditions | Can any async operations interleave incorrectly? |
+
+### Temporal Perspective
+*"How does the system change over time?"*
+
+| Check | Question |
+|-------|----------|
+| Drift rate | Is the drift score increasing or decreasing per sprint? |
+| Process decay | Are later sprints skipping more steps than earlier ones? |
+| Complexity growth | Are files getting larger each sprint? |
+| Technical debt | Are deferred items accumulating faster than being resolved? |
+| Learning velocity | Are anti-patterns being caught earlier each sprint? |
+
+### Forensic Perspective
+*"Can we reconstruct what happened from logs alone?"*
+
+| Check | Question |
+|-------|----------|
+| Event completeness | Can the full sprint timeline be reconstructed from event logs? |
+| Decision traceability | Is every non-trivial decision logged with reasoning? |
+| Error attribution | Can every bug be traced to a specific agent and wave? |
+| Checkpoint chain | Do wave checkpoints form a complete history? |
+| Handoff fidelity | Could a new executor replicate the sprint from the handoff alone? |
+
+### Rate each perspective 1-5 after each sprint:
+```json
+{"ts":"...","category":"multi_perspective","sprint":N,
+ "structural":4,"behavioral":5,"temporal":3,"forensic":2}
+```
+
+### Session 1 Perspective Scores:
+| Perspective | S0 | S1 | S2 | S3 | Trend |
+|-------------|----|----|----|----|-------|
+| Structural | 4 | 5 | 4 | 4 | STABLE |
+| Behavioral | 5 | 5 | 5 | 5 | STABLE |
+| Temporal | N/A | 4 | 3 | 2 | DOWN |
+| Forensic | 4 | 4 | 2 | 1 | **DOWN** |
+
+**Forensic is the worst dimension.** Sprint 3's event log was so sparse that the sprint cannot be reconstructed from logs alone. Sprint 4 MUST score >= 4 on Forensic.
+
+---
+
+## 14. Mid-Sprint Course Correction
+
+If at any wave boundary, the health check scores AMBER or RED:
+
+1. **AMBER**: Log the issue, fix it, add a correction event:
+   ```json
+   {"ts":"...","event":"course_correction","wave":M,
+    "issue":"...", "fix":"...", "prevented":"..."}
+   ```
+
+2. **RED**: STOP execution. Report to user:
+   - What health checks failed
+   - What caused the failure
+   - Proposed fix before continuing
+   - DO NOT proceed without user acknowledgment
+
+This prevents the "gradual decay" pattern observed in Session 1 where each sprint was slightly worse than the last without any intervention.
+
+---
+
 ## End of Protocol
 
 This document is the authoritative reference for Maestro process enforcement.
 Every executor session MUST read this before Sprint execution begins.
 Every gate in this document is BLOCKING — no exceptions without user approval.
+
+**Core values reminder**: Process > Rules > Quality > Thoroughness > Speed.
+**Speed is NEVER a reason to skip a step.**
