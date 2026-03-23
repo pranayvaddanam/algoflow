@@ -413,21 +413,38 @@ c19d110 feat: sprint-0 wave 1 complete — project scaffold
 
 ## Section 10: Sprint 4 Execution Instructions
 
-### Phase A: Context Loading (MANDATORY)
+### Phase A: Context Loading (MANDATORY — FULL FILES, NO EXCERPTS)
+
+**Token consumption is NOT a concern. Quality is the ONLY concern.**
+Read EVERY file below in FULL — no offset/limit, no "relevant sections."
+An agent with too much context is better than one with too little.
 
 ```
-Step 1: Read this SESSION-HANDOFF.md
-Step 2: Read CLAUDE.md (full file)
-Step 3: Read sprints/sprint-plan.md (Sprint 4 section)
-Step 4: Read ALL Sprint 4 story files:
-        - sprints/stories/STORY-4-001.md
-        - sprints/stories/STORY-4-002.md
-        - sprints/stories/STORY-4-003.md
-        - sprints/stories/STORY-4-004.md
-        - sprints/stories/STORY-4-005.md
-Step 5: Read orchestrator/learning-log.md (anti-patterns to enforce)
-Step 6: Read docs/04-screen-map.md (Sprint 4 design specs)
+Step 1:  Read this SESSION-HANDOFF.md (FULL — 560+ lines)
+Step 2:  Read orchestrator/enforcement-protocol.md (FULL — 900+ lines)
+Step 3:  Read CLAUDE.md (FULL — all conventions, design system, warnings)
+Step 4:  Read orchestrator/learning-log.md (FULL — all anti-patterns, rules)
+Step 5:  Read sprints/sprint-plan.md (FULL — all sprints for context)
+Step 6:  Read sprints/sprint-status.yaml (FULL — verify Sprint 0-3 done)
+Step 7:  Read ALL Sprint 4 story files (FULL, each one):
+         - sprints/stories/STORY-4-001.md
+         - sprints/stories/STORY-4-002.md
+         - sprints/stories/STORY-4-003.md
+         - sprints/stories/STORY-4-004.md
+         - sprints/stories/STORY-4-005.md
+Step 8:  Read docs/04-screen-map.md (FULL — all wireframes)
+Step 9:  Read docs/02-architecture.md (FULL — component hierarchy)
+Step 10: Read orchestrator/runs/.../sprint-2-risk-resolution.md (FULL — API patterns)
+Step 11: Run /effort max (verify it's active)
+Step 12: Run Gate A checklist (all 8 items)
 ```
+
+**For EVERY implementing agent spawned, include in its prompt:**
+- "Read CLAUDE.md FULLY before writing any code"
+- "Read the story file(s) FULLY — all ACs, all architecture components"
+- "Read orchestrator/learning-log.md FULLY — all anti-patterns to avoid"
+- "Read the prior wave checkpoint FULLY — all context for this wave"
+- Do NOT summarize files for agents. Give them file paths to read themselves.
 
 ### Phase B: Sprint 4 Execution (Suggested Waves)
 

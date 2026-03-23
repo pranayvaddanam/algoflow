@@ -58,6 +58,23 @@ low  → Fastest, least reasoning
 
 **NEVER include "ultrathink" in agent prompts.** It downgrades from max to high.
 
+### Full-File Context Loading Rule (CRITICAL)
+
+**ALL agents MUST read FULL files, not selective portions.** Do NOT use `offset`/`limit` parameters on Read tool for context files. Do NOT tell agents to "read lines X-Y" or "read the relevant section." Token consumption is NOT a concern — quality is the ONLY concern.
+
+**For every implementing agent prompt, include ALL of these as full reads:**
+1. `CLAUDE.md` — FULL file (all conventions, design system, warnings)
+2. Story files — FULL file (all ACs, architecture components, dev agent record)
+3. `orchestrator/enforcement-protocol.md` — FULL file (all gates, logging, analysis)
+4. `orchestrator/learning-log.md` — FULL file (all anti-patterns, limitations, suggestions)
+5. Relevant architecture docs — FULL file (not excerpts)
+6. Prior wave checkpoint — FULL file (complete context for downstream work)
+7. `orchestrator/runs/{run-id}/sprint-2-risk-resolution.md` — FULL file (verified API patterns)
+
+**Never summarize context for agents.** Give them the real files. An agent with too much context is better than an agent with too little. The agent can prioritize; a missing detail cannot be recovered.
+
+**This applies to audit agents too.** An audit agent that reads full files catches real issues. One that reads excerpts produces false positives (see AP-012: 86% false positive rate in Sprint 2 audit was caused by the audit agent guessing from patterns instead of reading actual code).
+
 ---
 
 ## 1. MANDATORY HARD GATES (System Will Not Proceed Without These)
