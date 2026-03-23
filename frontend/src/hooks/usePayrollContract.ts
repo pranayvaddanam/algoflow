@@ -186,27 +186,48 @@ export function usePayrollContract() {
 
   /**
    * Read-only: get the accrued balance for an employee.
+   * Does NOT require a connected wallet — uses simulate with an empty signer.
    */
   const getAccrued = useCallback(
     async (employeeAddress: string): Promise<MethodCallResult> => {
-      if (!activeAddress) throw new Error('Wallet not connected');
-
       const sp = await getSuggestedParams();
       const atc = new algosdk.AtomicTransactionComposer();
       const method = contract.getMethodByName('get_accrued');
 
+      // Use the connected address if available, otherwise use the employee address
+      // as the sender (simulate does not require signing)
+      const sender = activeAddress ?? employeeAddress;
+      const signer = activeAddress
+        ? transactionSigner
+        : algosdk.makeEmptyTransactionSigner();
+
       atc.addMethodCall({
         appID: appId,
         method,
-        sender: activeAddress,
-        signer: transactionSigner,
+        sender,
+        signer,
         suggestedParams: sp,
         methodArgs: [employeeAddress],
       });
 
+      // Use simulate for read-only call when no wallet is connected
+      if (!activeAddress) {
+        const simResult = await atc.simulate(algodClient, new algosdk.modelsv2.SimulateRequest({
+          txnGroups: [],
+          allowEmptySignatures: true,
+        }));
+        const methodResult = simResult.methodResults[0];
+        const returnValue = methodResult?.returnValue;
+        return {
+          txIDs: methodResult?.txID ? [methodResult.txID] : [],
+          confirmedRound: 0n,
+          returnValue: returnValue !== undefined ? Number(returnValue) : undefined,
+        };
+      }
+
       return executeAtc(atc);
     },
-    [activeAddress, appId, transactionSigner, getSuggestedParams, executeAtc],
+    [activeAddress, appId, algodClient, transactionSigner, getSuggestedParams, executeAtc],
   );
 
   /**

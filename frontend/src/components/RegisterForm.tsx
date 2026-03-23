@@ -180,6 +180,7 @@ export function RegisterForm({
 
       onSuccess?.(registeredAddresses);
     } catch (err) {
+      console.error('[RegisterForm] Registration error:', err);
       setStatus('error');
       const errMessage = err instanceof Error ? err.message : 'Registration failed';
       if (errMessage.includes('rejected') || errMessage.includes('cancelled')) {

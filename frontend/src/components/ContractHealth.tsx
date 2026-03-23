@@ -7,7 +7,7 @@
  * banner when runway drops below 24 hours.
  */
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useMemo } from 'react';
 
 import { useAlgoFlowWallet } from '../hooks/useWallet';
 import { getAppId, getApplicationAddress } from '../lib/algorand';
@@ -72,9 +72,10 @@ export function ContractHealth({
   }, [fetchAlgoBalance]);
 
   // Compute burn rate: sum of all active employee salary rates (base units / hour)
-  const totalBurnRate = employees
-    .filter((e) => e.isActive)
-    .reduce((sum, e) => sum + e.salaryRate, 0);
+  const totalBurnRate = useMemo(
+    () => employees.filter((e) => e.isActive).reduce((sum, e) => sum + e.salaryRate, 0),
+    [employees],
+  );
 
   // Compute runway in hours
   const runwayHours =

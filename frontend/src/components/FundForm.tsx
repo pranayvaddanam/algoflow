@@ -108,6 +108,7 @@ export function FundForm({ onSuccess }: FundFormProps) {
       void fetchBalance();
       onSuccess?.();
     } catch (err) {
+      console.error('[FundForm] Fund error:', err);
       setStatus('error');
       const errMessage = err instanceof Error ? err.message : 'Transaction failed';
       if (errMessage.includes('rejected') || errMessage.includes('cancelled')) {

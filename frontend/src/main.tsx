@@ -15,7 +15,13 @@ import './index.css';
  */
 const walletManager = new WalletManager({
   wallets: [
-    WalletId.KMD,
+    {
+      id: WalletId.KMD,
+      options: {
+        wallet: 'unencrypted-default-wallet',
+        promptForPassword: async () => '',
+      },
+    },
     WalletId.PERA,
   ],
   defaultNetwork: getNetwork() === 'testnet' ? NetworkId.TESTNET : NetworkId.LOCALNET,

@@ -96,6 +96,9 @@ export function EmployerDashboard() {
   const trackedRef = useRef(trackedAddresses);
   trackedRef.current = trackedAddresses;
 
+  // Collect timeout IDs for cleanup on unmount
+  const timeoutIds = useRef<ReturnType<typeof setTimeout>[]>([]);
+
   /**
    * Fetch local state for all tracked employee addresses.
    * Removes addresses that are no longer opted in (removed employees).
@@ -122,9 +125,19 @@ export function EmployerDashboard() {
             results.push(parsed);
             stillValid.push(addr);
           }
-        } catch {
-          // Account not opted in or removed — skip but don't remove yet
-          // (it may just be a transient error)
+        } catch (err) {
+          // Distinguish expected "not opted in" errors from real errors
+          if (
+            err instanceof Error &&
+            (err.message.includes('not opted in') ||
+              err.message.includes('has not opted') ||
+              err.message.includes('account application information not found'))
+          ) {
+            // Expected — employee not opted in or removed, skip silently
+          } else {
+            console.error(`[EmployerDashboard] Error fetching state for ${addr}:`, err);
+          }
+          // Retain address in tracking (may be a transient error)
           stillValid.push(addr);
         }
       }
@@ -182,6 +195,21 @@ export function EmployerDashboard() {
     return () => clearInterval(intervalId);
   }, [fetchEmployeeStates, fetchContractBalance]);
 
+  // Cleanup all pending timeouts on unmount
+  useEffect(() => {
+    return () => {
+      timeoutIds.current.forEach(clearTimeout);
+    };
+  }, []);
+
+  /**
+   * Schedule a delayed callback, tracking the timeout ID for cleanup.
+   */
+  function scheduleRefresh(fn: () => void, delay: number) {
+    const id = setTimeout(fn, delay);
+    timeoutIds.current.push(id);
+  }
+
   /**
    * Handle successful employee registration — add new addresses to tracking.
    */
@@ -193,7 +221,7 @@ export function EmployerDashboard() {
     });
 
     // Refresh data after a short delay for chain confirmation
-    setTimeout(() => {
+    scheduleRefresh(() => {
       void fetchEmployeeStates();
       void refreshContract();
     }, 2000);
@@ -204,7 +232,7 @@ export function EmployerDashboard() {
    */
   function handleEmployeeMutate() {
     // Short delay for chain confirmation
-    setTimeout(() => {
+    scheduleRefresh(() => {
       void fetchEmployeeStates();
       void fetchContractBalance();
       void refreshContract();
@@ -215,7 +243,7 @@ export function EmployerDashboard() {
    * Handle successful funding — refresh balances.
    */
   function handleFundSuccess() {
-    setTimeout(() => {
+    scheduleRefresh(() => {
       void fetchContractBalance();
       void refreshContract();
     }, 2000);
@@ -225,7 +253,7 @@ export function EmployerDashboard() {
    * Handle successful milestone payment — refresh balances.
    */
   function handleMilestoneSuccess() {
-    setTimeout(() => {
+    scheduleRefresh(() => {
       void fetchContractBalance();
       void refreshContract();
     }, 2000);
@@ -235,7 +263,7 @@ export function EmployerDashboard() {
    * Handle successful emergency pause — refresh state.
    */
   function handlePauseSuccess() {
-    setTimeout(() => {
+    scheduleRefresh(() => {
       void refreshContract();
       void fetchEmployeeStates();
     }, 2000);

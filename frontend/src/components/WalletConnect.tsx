@@ -44,6 +44,14 @@ export function WalletConnect() {
       const message = err instanceof Error ? err.message : 'Failed to connect wallet';
       if (message.includes('rejected') || message.includes('cancelled')) {
         setError('Connection request was cancelled.');
+      } else if (
+        message.includes('NetworkError') ||
+        message.includes('Failed to fetch') ||
+        message.includes('ECONNREFUSED')
+      ) {
+        setError(
+          'LocalNet not running. Start Docker and run `algokit localnet start`.',
+        );
       } else {
         setError(message);
       }

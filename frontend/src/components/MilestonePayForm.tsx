@@ -100,6 +100,7 @@ export function MilestonePayForm({
       setSelectedEmployee('');
       onSuccess?.();
     } catch (err) {
+      console.error('[MilestonePayForm] Milestone payment error:', err);
       setStatus('error');
       const errMessage = err instanceof Error ? err.message : 'Milestone payment failed';
       if (errMessage.includes('rejected') || errMessage.includes('cancelled')) {

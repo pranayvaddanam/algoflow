@@ -939,22 +939,46 @@ class TestEdgeCases:
     def test_withdraw_rejects_below_minimum(
         self,
         deployed_app: AppClient,
-        registered_employee,
+        algorand: AlgorandClient,
+        employer,
     ):
         """Verify withdraw rejects accrual below 1000 base units (0.001 PAYUSD).
 
-        With rate=3,600,000,000/hr, even 1 second = 1,000,000 base units,
-        which is above minimum. So we DON'T sleep — attempt immediate withdrawal
-        where elapsed=0 and accrued=0, which is below the 1000 minimum.
+        Uses a very low rate (100 base units/hr) so that even after several
+        seconds, accrued = 100 * elapsed / 3600 = 0 via integer division.
+        This ensures accrued < 1000 minimum.
         """
-        _employee, employee_client = registered_employee
-
-        # Immediate withdraw — elapsed ~0 seconds, accrued < 1000
+        # Create a fresh employee with a very low rate
+        low_rate_emp = algorand.account.random()
+        algorand.send.payment(PaymentParams(
+            sender=employer.address,
+            receiver=low_rate_emp.address,
+            amount=AlgoAmount.from_algo(1),
+            note=f"fund-lowrate-{uuid.uuid4()}".encode(),
+        ))
+        # Opt into ASA
+        asset_id = deployed_app.get_global_state()["salary_asset"].value
+        algorand.send.asset_opt_in(AssetOptInParams(
+            sender=low_rate_emp.address,
+            asset_id=asset_id,
+        ))
+        # Opt into app
+        low_client = deployed_app.clone(default_sender=low_rate_emp.address)
+        low_client.send.bare.opt_in(AppClientBareCallParams(
+            note=f"opt-lowrate-{uuid.uuid4()}".encode(),
+        ))
+        # Register with rate=100 base units/hr (below meaningful accrual)
+        deployed_app.send.call(AppClientMethodCallParams(
+            method="register_employee",
+            args=[low_rate_emp.address, 100],
+            note=f"reg-lowrate-{uuid.uuid4()}".encode(),
+        ))
+        # Immediate withdraw — 100 * ~0s / 3600 = 0 < 1000 minimum
         with pytest.raises(Exception):
-            employee_client.send.call(AppClientMethodCallParams(
+            low_client.send.call(AppClientMethodCallParams(
                 method="withdraw",
                 extra_fee=AlgoAmount.from_micro_algo(1000),
-                note=f"withdraw-immediate-{uuid.uuid4()}".encode(),
+                note=f"withdraw-lowrate-{uuid.uuid4()}".encode(),
             ))
 
     def test_update_rate_rejects_paused_employee(
