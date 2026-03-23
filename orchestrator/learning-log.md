@@ -81,5 +81,6 @@
 2. **NEVER use sed on YAML/JSON** — always use Edit tool
 3. **Drift check before each wave** — log to drift-log.jsonl
 4. **Audit calibration** — agent must READ actual code, not guess from patterns
+5. **MANDATORY**: Read `orchestrator/enforcement-protocol.md` at session start — 11 sections covering all gates, logging, drift measurement, and audit calibration
 
 ---

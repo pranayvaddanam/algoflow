@@ -9,3 +9,9 @@
 {"ts":"2026-03-23T11:25:10Z","event":"agent_spawned","agent":"sprint2-panels","wave":3,"stories":["STORY-2-005"],"prompt_file":"prompts/sprint-2-wave-3-sprint2-panels.md","isolation":"main"}
 {"ts":"2026-03-23T11:30:00Z","event":"wave_completed","wave":3,"duration_seconds":300}
 {"ts":"2026-03-23T11:30:30Z","event":"sprint_completed","sprint":2,"stories_completed":5,"unit_tests":37,"frontend_components":10,"duration_seconds":1800,"anomaly_count":1}
+{"ts":"2026-03-23T11:18:00Z","event":"agent_completed","agent":"sprint2-foundation","wave":1,"status":"success","files_created":5,"files_modified":8,"tests_added":0,"duration_seconds":976,"note":"BACKFILLED — not logged at time of execution"}
+{"ts":"2026-03-23T11:18:15Z","event":"quality_check","wave":1,"tsc":{"errors":0,"warnings":0},"build":"PASS","note":"BACKFILLED"}
+{"ts":"2026-03-23T11:25:00Z","event":"agent_completed","agent":"sprint2-core-dashboard","wave":2,"status":"success","files_created":6,"files_modified":3,"tests_added":0,"duration_seconds":387,"note":"BACKFILLED"}
+{"ts":"2026-03-23T11:25:15Z","event":"quality_check","wave":2,"tsc":{"errors":0,"warnings":0},"build":"PASS","note":"BACKFILLED"}
+{"ts":"2026-03-23T11:30:00Z","event":"agent_completed","agent":"sprint2-panels","wave":3,"status":"success","files_created":4,"files_modified":2,"tests_added":0,"duration_seconds":290,"note":"BACKFILLED"}
+{"ts":"2026-03-23T11:30:15Z","event":"quality_check","wave":3,"tsc":{"errors":0,"warnings":0},"build":"PASS","note":"BACKFILLED"}

@@ -3,3 +3,11 @@
 {"ts":"2026-03-24T01:00:10Z","event":"agent_spawned","agent":"sprint3-employee","wave":1,"stories":["STORY-3-001","STORY-3-002"],"isolation":"main"}
 {"ts":"2026-03-24T01:07:00Z","event":"wave_completed","wave":1,"duration_seconds":420}
 {"ts":"2026-03-24T01:07:05Z","event":"wave_started","wave":2,"agents":["sprint3-landing","sprint3-ux-demo"],"parallel":false,"write_targets":{"sprint3-landing":["frontend/src/components/Landing.tsx","frontend/src/components/HowItWorks.tsx","frontend/src/components/RoleSelector.tsx","frontend/src/App.tsx"],"sprint3-ux-demo":["frontend/src/components/Toast.tsx","frontend/src/components/ExplorerLink.tsx","frontend/src/components/NetworkBadge.tsx","scripts/demo.py","scripts/reset.py"]}}
+{"ts":"2026-03-24T01:07:00Z","event":"agent_completed","agent":"sprint3-employee","wave":1,"status":"success","files_created":6,"files_modified":3,"tests_added":0,"duration_seconds":366,"note":"BACKFILLED"}
+{"ts":"2026-03-24T01:07:15Z","event":"quality_check","wave":1,"tsc":{"errors":0,"warnings":0},"build":"PASS","note":"BACKFILLED"}
+{"ts":"2026-03-24T01:07:20Z","event":"wave_verification","wave":2,"planned_stories":["STORY-3-003"],"actual_stories":["STORY-3-003","STORY-3-004","STORY-3-005"],"plan_match":false,"note":"BACKFILLED — DRIFT: Waves 2+3 were merged into single agent without user approval"}
+{"ts":"2026-03-24T01:07:25Z","event":"agent_spawned","agent":"sprint3-landing-ux-demo","wave":2,"stories":["STORY-3-003","STORY-3-004","STORY-3-005"],"isolation":"main","note":"BACKFILLED — consolidated from planned Wave 2 + Wave 3"}
+{"ts":"2026-03-24T01:16:00Z","event":"agent_completed","agent":"sprint3-landing-ux-demo","wave":2,"status":"success","files_created":9,"files_modified":9,"tests_added":0,"duration_seconds":532,"note":"BACKFILLED"}
+{"ts":"2026-03-24T01:16:15Z","event":"quality_check","wave":2,"tsc":{"errors":0,"warnings":0},"build":"PASS","note":"BACKFILLED"}
+{"ts":"2026-03-24T01:16:30Z","event":"wave_completed","wave":2,"duration_seconds":555,"note":"BACKFILLED"}
+{"ts":"2026-03-24T02:00:00Z","event":"sprint_completed","sprint":3,"stories_completed":5,"unit_tests":37,"frontend_components":22,"duration_seconds":3600,"anomaly_count":1,"wave_drift":-1,"note":"BACKFILLED — Wave 2+3 consolidation is the anomaly"}

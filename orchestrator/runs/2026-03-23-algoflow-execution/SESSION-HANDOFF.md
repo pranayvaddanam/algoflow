@@ -284,6 +284,24 @@ Before spawning EACH wave agent, the executor MUST:
 3. Drift check before each wave spawn
 4. Audit agents must READ actual code, not guess from patterns
 
+### MANDATORY: Read Enforcement Protocol
+**File**: `orchestrator/enforcement-protocol.md` (250+ lines)
+The Sprint 4 executor MUST read this file at session start. It defines:
+- Pre-Wave Verification Gate (Section 1)
+- Post-Agent Completion Logging (Section 2)
+- Quality Check Logging (Section 3)
+- Sprint Completion Event (Section 4)
+- SIT Agent Protocol — simplified (Section 5)
+- Wave Checkpoint Enforcement (Section 6)
+- Audit Calibration with 14 negative keywords (Section 7)
+- Event Log Completeness Standard (Section 8)
+- Drift Measurement Framework with Sprint Drift Score (Section 9)
+- Qualitative Analysis Terms (Section 10)
+- Cross-Sprint Trend Analysis (Section 11)
+
+Sprint 4 drift score target: < 30 (ACCEPTABLE)
+Sprint 3 scored 70 (CRITICAL) — process discipline must recover
+
 ---
 
 ## Section 6: Anti-Patterns Registry (ENFORCE in Sprint 4)
