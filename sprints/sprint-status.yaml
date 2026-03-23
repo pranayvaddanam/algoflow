@@ -114,6 +114,7 @@ sprints:
         assigned_agent: "sprint2-foundation"
         started_at: "2026-03-23T11:00:00Z"
         completed_at: "2026-03-23T11:18:00Z"
+        verified_at: "2026-03-23T11:18:30Z"
         blockers: []
         frs: []
       STORY-2-002:
@@ -123,6 +124,7 @@ sprints:
         assigned_agent: "sprint2-foundation"
         started_at: "2026-03-23T11:00:00Z"
         completed_at: "2026-03-23T11:18:00Z"
+        verified_at: "2026-03-23T11:18:30Z"
         blockers: []
         frs: ["FR-EMPLOYER-001"]
       STORY-2-003:
@@ -132,6 +134,7 @@ sprints:
         assigned_agent: "sprint2-core-dashboard"
         started_at: "2026-03-23T11:18:00Z"
         completed_at: "2026-03-23T11:25:00Z"
+        verified_at: "2026-03-23T11:25:30Z"
         blockers: []
         frs: ["FR-EMPLOYER-003", "FR-EMPLOYER-004"]
       STORY-2-004:
@@ -141,6 +144,7 @@ sprints:
         assigned_agent: "sprint2-core-dashboard"
         started_at: "2026-03-23T11:18:00Z"
         completed_at: "2026-03-23T11:25:00Z"
+        verified_at: "2026-03-23T11:25:30Z"
         blockers: []
         frs: ["FR-EMPLOYER-005", "FR-EMPLOYER-006"]
       STORY-2-005:
@@ -150,6 +154,7 @@ sprints:
         assigned_agent: "sprint2-panels"
         started_at: "2026-03-23T11:25:00Z"
         completed_at: "2026-03-23T11:30:00Z"
+        verified_at: "2026-03-23T11:31:00Z"
         blockers: []
         frs: ["FR-EMPLOYER-002", "FR-EMPLOYER-007", "FR-EMPLOYER-008", "FR-EMPLOYER-009"]
 
