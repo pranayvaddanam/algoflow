@@ -43,10 +43,16 @@ L (Large)
 
 ## Dev Agent Record
 <!-- Filled by implementing agent during /maestro-execute -->
-- **Agent ID**:
-- **Files Created**:
-- **Files Modified**:
-- **Tests Written**:
+- **Agent ID**: claude-opus-4-6-wave2-s2003
+- **Files Created**: `frontend/src/components/FundForm.tsx`, `frontend/src/components/RegisterForm.tsx`, `frontend/src/components/EmployerDashboard.tsx`, `frontend/src/components/StatusBadge.tsx`
+- **Files Modified**: `frontend/src/App.tsx` (integrated EmployerDashboard into /employer route)
+- **Tests Written**: None (frontend component tests deferred to Sprint 3 E2E)
 - **Decisions Made**:
-- **Blockers Encountered**:
-- **Completion Status**:
+  - Employee address tracking via localStorage (contract has no on-chain address list; demo max 3 employees)
+  - Rate input in display units ($/hr) auto-converted to base units (rate * 10^6) before contract call
+  - FundForm fetches employer's PAYUSD balance via algodClient.accountInformation for pre-submit validation
+  - RegisterForm supports Single/Batch toggle; batch mode up to 3 rows; sequential registerEmployee calls (atomic group per call)
+  - Address input forces uppercase to match Algorand address format (A-Z, 2-7)
+  - Contract PAYUSD balance polled at POLL_INTERVAL_MS to compute runway indicator
+- **Blockers Encountered**: None
+- **Completion Status**: DONE

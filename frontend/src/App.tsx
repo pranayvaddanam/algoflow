@@ -1,6 +1,7 @@
 import { Routes, Route } from 'react-router-dom';
 
 import { WalletConnect } from './components/WalletConnect';
+import { EmployerDashboard } from './components/EmployerDashboard';
 import { useContractState } from './hooks/useContractState';
 import { useAlgoFlowWallet } from './hooks/useWallet';
 
@@ -57,6 +58,7 @@ function Landing() {
  * Employer dashboard page.
  * Shows WalletConnect prompt if not connected.
  * Shows access denied if connected address is not the employer.
+ * Renders the full EmployerDashboard when authorized.
  */
 function EmployerPage() {
   const { isConnected, activeAddress } = useAlgoFlowWallet();
@@ -102,22 +104,7 @@ function EmployerPage() {
     );
   }
 
-  return (
-    <div className="min-h-screen flex flex-col items-center justify-center text-text-light">
-      <h1 className="font-heading text-4xl tracking-tight mb-4">
-        Employer Dashboard
-      </h1>
-      <p className="text-text-light/70">
-        Manage employees, fund payroll, and monitor streams.
-      </p>
-      <div className="mt-6">
-        <WalletConnect />
-      </div>
-      <a href="/" className="mt-6 text-stream-green hover:underline">
-        Back to Home
-      </a>
-    </div>
-  );
+  return <EmployerDashboard />;
 }
 
 /**

@@ -44,10 +44,18 @@ L (Large)
 
 ## Dev Agent Record
 <!-- Filled by implementing agent during /maestro-execute -->
-- **Agent ID**:
-- **Files Created**:
-- **Files Modified**:
-- **Tests Written**:
+- **Agent ID**: claude-opus-4-6-wave2-s2004
+- **Files Created**: `frontend/src/components/EmployeeList.tsx`, `frontend/src/components/EmployeeRow.tsx`, `frontend/src/components/StatusBadge.tsx`
+- **Files Modified**: `frontend/src/App.tsx` (EmployerDashboard integration)
+- **Tests Written**: None (frontend component tests deferred to Sprint 3 E2E)
 - **Decisions Made**:
-- **Blockers Encountered**:
-- **Completion Status**:
+  - EmployeeRow calculates live accrued amount client-side (rate * elapsed / 3600, ticking every second) for active employees; paused employees show 0 accrued (contract settles on pause)
+  - Per-action loading states (pause, resume, updateRate, remove) prevent concurrent actions on same employee
+  - Remove action requires explicit confirmation dialog before executing destructive removeEmployee call
+  - Update Rate uses inline expanding form (not a modal) for fast interaction
+  - StatusBadge supports three states: Active (green), Paused (amber), Paused Global (red/accent)
+  - EmployeeList uses CSS grid 5-column layout (Employee, Rate, Status, Accrued, Actions)
+  - All 3 employees visible without scrolling (max 3 demo constraint)
+  - Employee mutations trigger delayed state refresh (2s after confirmation) to allow chain finality
+- **Blockers Encountered**: None
+- **Completion Status**: DONE
