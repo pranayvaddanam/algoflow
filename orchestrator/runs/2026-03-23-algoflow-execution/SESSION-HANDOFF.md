@@ -352,6 +352,15 @@ These MUST be included in every Sprint 4 agent prompt:
 | LocalNet | Works (algokit localnet start) |
 | Testnet faucet | https://bank.testnet.algorand.network/ |
 
+### Effort Level (CRITICAL — read before starting)
+
+The user runs `/effort max` at session start. This gives the main executor AND all spawned subagents maximum reasoning depth (Opus 4.6 only).
+
+**Do NOT use "ultrathink" in agent prompts** — it overrides max DOWN to high.
+**Gate A check A8** verifies `/effort max` is active before sprint starts.
+**Spawned agents inherit** session effort — no per-agent config needed.
+**Haiku agents** (watchdog) don't support max effort — acceptable for scanning.
+
 ### Critical Environment Notes
 
 1. **Docker must be running** before `algokit localnet start`

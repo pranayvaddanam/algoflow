@@ -37,6 +37,27 @@ This is logged to the event log:
 
 If this event is missing for any wave, the Sprint Completion Gate FAILS.
 
+### Effort Level Configuration (CRITICAL)
+
+**The user runs `/effort max` at session start.** This sets maximum reasoning depth for the main executor AND all spawned subagents (they inherit session effort).
+
+**Rules:**
+1. Gate A (Sprint Entry) includes verifying `/effort max` is active
+2. Do NOT put `ultrathink` in agent prompts — it overrides max effort DOWN to high
+3. All agents use `model: "opus"` which supports max effort
+4. Watchdog agents use `model: "haiku"` — haiku does NOT support max effort (acceptable for keyword scanning)
+5. If the user hasn't run `/effort max`, the executor MUST remind them before proceeding
+
+**Effort hierarchy (higher is better):**
+```
+max  → Deepest reasoning (Opus 4.6 only, session-level)
+high → Deep reasoning (what "ultrathink" actually sets — LOWER than max)
+medium → Default
+low  → Fastest, least reasoning
+```
+
+**NEVER include "ultrathink" in agent prompts.** It downgrades from max to high.
+
 ---
 
 ## 1. MANDATORY HARD GATES (System Will Not Proceed Without These)
@@ -85,8 +106,9 @@ A4. [ ] Sprint event log created (sprint_started event written)
 A5. [ ] Prior sprint drift score reviewed (if not Sprint 0)
 A6. [ ] All prior sprint stories verified "done" in sprint-status.yaml
 A7. [ ] Git working tree clean
+A8. [ ] /effort max is active (if not, remind user to run it)
 
-PASS: ALL 7 checked → proceed to Gate B for Wave 1
+PASS: ALL 8 checked → proceed to Gate B for Wave 1
 FAIL: ANY unchecked → STOP. Do not start sprint.
 ```
 
