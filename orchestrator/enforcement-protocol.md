@@ -280,6 +280,12 @@ After EVERY wave passes quality checks, write a checkpoint document:
 ## Anti-Patterns Observed
 (from agent output — 1+ items)
 
+## Agent Findings Report
+(extracted FINDING| lines from agent output — or "CLEAN")
+
+## Watchdog Report
+(keyword scan results — files scanned, findings by severity, top keywords)
+
 ## Context for Next Wave
 (what downstream agents need — 3+ lines)
 ```
@@ -602,6 +608,244 @@ This prevents the "gradual decay" pattern observed in Session 1 where each sprin
 
 ---
 
+## 15. Watchdog Agent — Continuous Negative Keyword Monitoring
+
+### Purpose
+
+A background watchdog agent runs BETWEEN waves. Its sole job: scan ALL files modified in the just-completed wave for the 14 negative keywords + 10 extended keywords. It reports findings to the executor, who logs them.
+
+### Watchdog Keyword Set (24 total)
+
+**Core 14** (from Section 7):
+`INCONSISTENCY`, `STALE REFERENCE`, `AMBIGUITY`, `GREY AREA`, `SILENT FAILURE`,
+`DEAD CODE`, `DRIFT`, `PHANTOM`, `REGRESSION`, `CONTRADICTION`, `HARDCODED`,
+`LEAK`, `COUPLING`, `RACE CONDITION`
+
+**Extended 10** (pattern-matched in code):
+`TODO`, `FIXME`, `HACK`, `WORKAROUND`, `TEMPORARY`, `DEPRECATED`,
+`UNSAFE`, `ANY` (TypeScript type), `eslint-disable`, `@ts-ignore`
+
+### Watchdog Spawn Protocol
+
+After Gate C (Post-Wave) passes for each wave, spawn:
+
+```
+Agent(
+  name: "watchdog-s{N}-w{M}",
+  model: "haiku",  // lightweight — just scanning
+  mode: "bypassPermissions",
+  prompt: "You are a Watchdog Agent. Scan these files for problems:
+    [list of files created/modified in this wave]
+
+    For EACH file, grep for these 24 keywords and patterns:
+    [full keyword list]
+
+    Also check for:
+    - Functions longer than 50 lines (complexity smell)
+    - Catch blocks without console.error (silent failure)
+    - setTimeout/setInterval without cleanup refs (leak)
+    - Hardcoded strings that should be constants
+    - Imports that reference files that don't exist (phantom)
+    - Types using 'any' (type safety gap)
+
+    Output format per finding:
+    WATCHDOG|{severity}|{file}:{line}|{keyword}|{description}
+
+    If NO findings: output WATCHDOG|CLEAN|{file_count} files scanned|0 issues
+
+    Be thorough. Missing a real issue is worse than a false positive here."
+)
+```
+
+### Watchdog Output Handling
+
+The executor processes watchdog results:
+
+1. **Parse findings** — extract severity/file/keyword/description
+2. **Log each finding** to event log:
+   ```json
+   {"ts":"...","event":"watchdog_finding","wave":M,"severity":"...",
+    "file":"...","line":N,"keyword":"...","description":"..."}
+   ```
+3. **Aggregate** to wave checkpoint under `## Watchdog Report` section
+4. **CRITICAL findings** → block next wave (added to Gate B prerequisites)
+5. **HIGH findings** → included in next wave agent's prompt as warnings
+6. **MEDIUM/LOW** → logged, reviewed at sprint end
+
+### Watchdog Health Metric
+
+Track across waves:
+```json
+{"ts":"...","event":"watchdog_summary","wave":M,
+ "files_scanned":N,"total_findings":N,
+ "by_severity":{"CRITICAL":0,"HIGH":0,"MEDIUM":0,"LOW":0},
+ "top_keywords":["HARDCODED":2,"TODO":1]}
+```
+
+---
+
+## 16. Agent Reporting Protocol — Anti-Pattern & Finding Escalation
+
+### Mandatory Agent Output Section
+
+EVERY implementing agent prompt MUST include:
+
+```
+## MANDATORY: Report Unusual Findings
+
+Before finishing, you MUST include a section called "## Findings Report" with:
+
+1. **Anti-patterns observed** — bad practices in existing code you read or new code you wrote
+2. **Unusual behavior** — anything unexpected during execution (errors, warnings, timeouts)
+3. **Stale references found** — imports/paths/constants that reference things that no longer exist
+4. **Silent failures** — errors caught and swallowed, null checks that hide real problems
+5. **Suggestions** — concrete improvements for next wave/sprint
+
+For each finding, use this format:
+FINDING|{severity}|{category}|{file}:{line}|{description}
+
+Categories: ANTI_PATTERN, UNUSUAL, STALE_REF, SILENT_FAIL, SUGGESTION, DRIFT
+
+If you find NOTHING unusual, state: "FINDING|CLEAN|No issues observed in {N} files"
+Do NOT skip this section. It is mandatory.
+```
+
+### Executor Processing of Agent Findings
+
+When an agent returns, the executor MUST (as part of Gate C):
+
+1. **Extract** all `FINDING|` lines from agent output
+2. **Log each** to event log:
+   ```json
+   {"ts":"...","event":"agent_finding","agent":"...","wave":M,
+    "severity":"...","category":"...","file":"...","description":"..."}
+   ```
+3. **Escalate CRITICAL** findings to the user immediately
+4. **Add HIGH** findings to the next wave agent's prompt under `## Known Issues`
+5. **Append** all findings to learning-log.md under the current sprint section
+
+This creates a chain: agents find issues → executor logs them → next agents are warned → learning log captures for future sprints.
+
+---
+
+## 17. Enhanced Logging Parameters
+
+### Event Log — Additional Fields (v2)
+
+All events now include these BASE fields:
+```json
+{
+  "ts": "ISO-8601",
+  "event": "event_type",
+  "sprint": N,
+  "wave": M,
+  "context_pct": 42,          // NEW: current context window usage %
+  "cumulative_agents": 7,      // NEW: total agents spawned this session
+  "process_adherence": "full"  // NEW: "full" | "partial" | "skipped"
+}
+```
+
+### agent_completed — Enhanced Fields
+```json
+{
+  "event": "agent_completed",
+  "agent": "name",
+  "wave": M,
+  "status": "success",
+  "files_created": N,
+  "files_modified": N,
+  "tests_added": N,
+  "duration_seconds": D,
+  "findings_reported": N,      // NEW: count of FINDING| lines in output
+  "anti_patterns_found": N,    // NEW: count of anti-patterns
+  "stale_refs_found": N,       // NEW: count of stale references
+  "silent_failures_found": N   // NEW: count of silent failures
+}
+```
+
+### quality_check — Enhanced Fields
+```json
+{
+  "event": "quality_check",
+  "wave": M,
+  "tsc": {"errors": 0, "warnings": 0},
+  "build": "PASS",
+  "pytest": {"total": 37, "passing": 37, "failing": 0},
+  "algokit_compile": "PASS",
+  "watchdog_findings": N,      // NEW: findings from watchdog scan
+  "new_todos_found": N,        // NEW: grep -c TODO in modified files
+  "new_any_types": N           // NEW: grep -c ': any' in modified .ts files
+}
+```
+
+### wave_completed — Enhanced Fields
+```json
+{
+  "event": "wave_completed",
+  "wave": M,
+  "duration_seconds": D,
+  "gate_c_score": "8/8",       // NEW: Post-Wave Gate result
+  "health_check_grade": "GREEN", // NEW: from Section 12
+  "watchdog_grade": "CLEAN",    // NEW: from watchdog agent
+  "findings_total": N,          // NEW: total findings (agent + watchdog)
+  "process_adherence": "full"   // NEW: were all steps followed?
+}
+```
+
+### sprint_completed — Enhanced Fields
+```json
+{
+  "event": "sprint_completed",
+  "sprint": N,
+  "stories_completed": N,
+  "unit_tests": N,
+  "frontend_components": N,
+  "duration_seconds": D,
+  "wave_count_planned": N,     // NEW
+  "wave_count_actual": N,      // NEW
+  "wave_drift": 0,             // NEW
+  "event_log_entries": N,      // NEW: total events in this sprint's log
+  "total_findings": N,         // NEW: all findings (agents + watchdogs)
+  "findings_resolved": N,      // NEW: findings fixed during sprint
+  "findings_deferred": N,      // NEW: findings logged for later
+  "drift_score": N,            // NEW: computed drift score
+  "health_grades": ["GREEN","GREEN","GREEN"], // NEW: per-wave
+  "gate_a_passed": true,       // NEW
+  "gate_d_passed": true,       // NEW
+  "gate_e_passed": true        // NEW
+}
+```
+
+---
+
+## 18. Sprint Analysis — Post-Sprint Log Review
+
+At the end of each sprint (before Gate E), the executor performs a structured analysis of ALL logs:
+
+### Log Sources to Analyze
+1. `sprint-{N}-event-log.jsonl` — timeline of all events
+2. `drift-log.jsonl` — plan-vs-execution deviations
+3. `meta-log.jsonl` — behavioral patterns and trends
+4. `learning-log.md` — accumulated anti-patterns and suggestions
+5. Wave checkpoint documents — per-wave state snapshots
+6. Watchdog reports — keyword scan results
+
+### Analysis Questions
+1. **Coverage**: What % of expected events were logged? (target: 100%)
+2. **Drift**: Did any wave deviate from the plan? By how much?
+3. **Findings velocity**: Are agents finding MORE or FEWER issues per wave? (fewer = improving)
+4. **Keyword trends**: Which negative keywords appear most? Are any increasing?
+5. **Process adherence**: Were all gates passed fully? Any partial passes?
+6. **Health trend**: Are wave health grades improving or degrading within the sprint?
+7. **Comparison**: How does this sprint compare to the previous on all dimensions?
+
+### Output: Sprint Analysis Report
+File: `orchestrator/runs/{run-id}/sprint-{N}-analysis.md`
+
+Contains all answers above with data tables. This feeds into the next sprint's Gate A (step A5: prior sprint drift score reviewed).
+
+---
+
 ## End of Protocol
 
 This document is the authoritative reference for Maestro process enforcement.
@@ -610,3 +854,4 @@ Every gate in this document is BLOCKING — no exceptions without user approval.
 
 **Core values reminder**: Process > Rules > Quality > Thoroughness > Speed.
 **Speed is NEVER a reason to skip a step.**
+**Every agent reports findings. Every finding is logged. Every log is analyzed.**

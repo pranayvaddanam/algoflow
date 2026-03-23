@@ -285,19 +285,36 @@ Before spawning EACH wave agent, the executor MUST:
 4. Audit agents must READ actual code, not guess from patterns
 
 ### MANDATORY: Read Enforcement Protocol
-**File**: `orchestrator/enforcement-protocol.md` (250+ lines)
-The Sprint 4 executor MUST read this file at session start. It defines:
-- Pre-Wave Verification Gate (Section 1)
-- Post-Agent Completion Logging (Section 2)
-- Quality Check Logging (Section 3)
-- Sprint Completion Event (Section 4)
-- SIT Agent Protocol — simplified (Section 5)
-- Wave Checkpoint Enforcement (Section 6)
-- Audit Calibration with 14 negative keywords (Section 7)
-- Event Log Completeness Standard (Section 8)
-- Drift Measurement Framework with Sprint Drift Score (Section 9)
-- Qualitative Analysis Terms (Section 10)
-- Cross-Sprint Trend Analysis (Section 11)
+**File**: `orchestrator/enforcement-protocol.md` (770+ lines, v2.1)
+The Sprint 4 executor MUST read this file FULLY at session start. It defines:
+
+**Core:**
+- Section 0: Core Values — Process > Rules > Quality > Thoroughness > Speed
+- Section 1: 5 Mandatory Hard Gates (A through E) — 35 total checkpoint items
+
+**Logging:**
+- Section 2: Post-Agent Completion Logging
+- Section 3: Quality Check Logging
+- Section 4: Sprint Completion Event
+- Section 17: Enhanced Logging Parameters (v2 event schemas with findings, adherence, watchdog fields)
+
+**Monitoring:**
+- Section 5: SIT Agent Protocol (simplified)
+- Section 12: Health Check System (8-point, GREEN/AMBER/RED)
+- Section 15: Watchdog Agent — continuous 24-keyword scanning between waves
+- Section 16: Agent Reporting Protocol — mandatory FINDING| output from every agent
+
+**Analysis:**
+- Section 7: Audit Calibration (14 core + 10 extended negative keywords)
+- Section 9: Drift Measurement Framework with Sprint Drift Score
+- Section 10: Qualitative Analysis (8 dimensions)
+- Section 13: Multi-Perspective Analysis (Structural, Behavioral, Temporal, Forensic)
+- Section 18: Sprint Analysis — structured post-sprint log review
+
+**Enforcement:**
+- Section 6: Wave Checkpoint Enforcement (50+ lines per wave)
+- Section 8: Event Log Completeness Standard
+- Section 14: Mid-Sprint Course Correction (AMBER/RED protocol)
 
 Sprint 4 drift score target: < 30 (ACCEPTABLE)
 Sprint 3 scored 70 (CRITICAL) — process discipline must recover
