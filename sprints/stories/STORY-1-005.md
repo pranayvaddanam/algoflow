@@ -48,10 +48,10 @@ M (Medium)
 
 ## Dev Agent Record
 <!-- Filled by implementing agent during /maestro-execute -->
-- **Agent ID**:
-- **Files Created**:
-- **Files Modified**:
-- **Tests Written**:
-- **Decisions Made**:
-- **Blockers Encountered**:
-- **Completion Status**:
+- **Agent ID**: claude-opus-4-6-sprint1-infra
+- **Files Created**: `scripts/deploy.py`, `scripts/fund_accounts.py`, `tests/test_integration.py`
+- **Files Modified**: `.env` (APP_ID, ASSET_ID, VITE_APP_ID, VITE_ASSET_ID updated by deploy script)
+- **Tests Written**: `test_full_payroll_flow` (17-step end-to-end), `test_pause_all_blocks_all_withdrawals`, `test_clawback_enables_inner_transfers`, `test_multiple_employees_independent_streams` — 4 integration tests total
+- **Decisions Made**: Used `AlgorandClient` (algokit-utils v4) API throughout, matching existing test patterns. Deploy script uses `AppFactory`/`AppClient` from ARC56 spec (not raw TEAL). Fund script generates random accounts on each run (not fixed accounts) for isolation. Employee rates set to 100/75/50 PAYUSD/hr as specified. Testnet path uses `AlgorandClient.testnet()` + `account.from_mnemonic()`.
+- **Blockers Encountered**: None
+- **Completion Status**: DONE

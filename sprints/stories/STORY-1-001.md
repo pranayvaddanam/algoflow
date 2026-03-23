@@ -35,10 +35,10 @@ M (Medium)
 
 ## Dev Agent Record
 <!-- Filled by implementing agent during /maestro-execute -->
-- **Agent ID**:
-- **Files Created**:
-- **Files Modified**:
-- **Tests Written**:
-- **Decisions Made**:
-- **Blockers Encountered**:
-- **Completion Status**:
+- **Agent ID**: claude-opus-4-6-sprint1-infra
+- **Files Created**: `scripts/deploy.py`, `tests/test_integration.py`
+- **Files Modified**: `.env` (APP_ID and ASSET_ID populated by deploy script)
+- **Tests Written**: `test_clawback_enables_inner_transfers` — validates contract-as-clawback enables inner AssetTransfer; `test_full_payroll_flow` steps 1 and 5 validate ASA metadata and clawback reconfiguration
+- **Decisions Made**: ASA created with employer as initial clawback, then reconfigured to contract address post-deployment (two-step approach matching data model spec). Used `AssetConfigTxn` with `strict_empty_address_check=False` for clawback reconfiguration. Constants already existed in `smart_contracts/helpers/constants.py` with all required values.
+- **Blockers Encountered**: None
+- **Completion Status**: DONE
