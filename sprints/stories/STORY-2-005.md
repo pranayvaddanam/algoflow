@@ -53,10 +53,21 @@ L (Large)
 
 ## Dev Agent Record
 <!-- Filled by implementing agent during /maestro-execute -->
-- **Agent ID**:
+- **Agent ID**: claude-opus-4-6-1m
 - **Files Created**:
+  - `frontend/src/components/ContractHealth.tsx` — Contract health monitoring panel (PAYUSD balance, ALGO balance, runway bar, burn rate, low-fund warning, global pause banner)
+  - `frontend/src/components/MilestonePayForm.tsx` — Milestone payment form (employee selector, amount input, balance check, TX feedback)
+  - `frontend/src/components/EmergencyControls.tsx` — Emergency pause controls (confirmation dialog, pause_all call, pause status indicator)
+  - `frontend/src/components/SetupChecklist.tsx` — 4-step setup guide (progress bar, action buttons, auto-hides on completion)
 - **Files Modified**:
-- **Tests Written**:
+  - `frontend/src/components/EmployerDashboard.tsx` — Replaced inline contract health with ContractHealth component; integrated SetupChecklist (top, conditional), MilestonePayForm (left column, below RegisterForm), EmergencyControls (full width, bottom); added ASA opt-in tracking, scroll-to helpers, milestone/pause success handlers
+- **Tests Written**: N/A (UI components — verified via tsc + build; E2E coverage in later sprint)
 - **Decisions Made**:
-- **Blockers Encountered**:
-- **Completion Status**:
+  - ContractHealth fetches ALGO balance independently (10s interval) since it is not available from the existing contract state hook
+  - SetupChecklist determines ASA opt-in by checking if the contract holds the target asset (isAsaOptedIn prop from EmployerDashboard)
+  - EmergencyControls uses a two-step confirmation flow (idle -> confirming -> loading) to prevent accidental pauses
+  - MilestonePayForm uses a dropdown selector populated from the employees array, not a free-text address input, for better UX
+  - SetupChecklist action buttons use smooth-scroll to the Fund/Register sections rather than modal overlays
+  - Runway bar uses 720h (30 days) as 100% width scale to provide meaningful visual feedback
+- **Blockers Encountered**: None
+- **Completion Status**: DONE

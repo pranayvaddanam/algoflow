@@ -2,8 +2,10 @@
  * Employer Dashboard — main layout for the /employer route.
  *
  * Two-column layout:
- * - Left column: Contract health overview, Fund form, Register form
+ * - Left column: Contract health overview, Fund form, Register form, Milestone pay
  * - Right column: Employee list with stream management
+ * - Bottom: Emergency controls (full width)
+ * - Top: Setup checklist (conditional, shown when setup incomplete)
  *
  * Tracks registered employee addresses in localStorage (since the contract
  * does not store an on-chain address list) and polls each employee's local
@@ -14,13 +16,17 @@ import { useState, useEffect, useCallback, useRef } from 'react';
 
 import { useContractState } from '../hooks/useContractState';
 import { useAlgoFlowWallet } from '../hooks/useWallet';
-import { getAppId, getApplicationAddress } from '../lib/algorand';
-import { formatTokenAmount, parseLocalState, cn } from '../lib/utils';
-import { ASSET_DECIMALS, POLL_INTERVAL_MS } from '../lib/constants';
+import { getAppId, getAssetId, getApplicationAddress } from '../lib/algorand';
+import { parseLocalState } from '../lib/utils';
+import { POLL_INTERVAL_MS } from '../lib/constants';
 import { WalletConnect } from './WalletConnect';
+import { ContractHealth } from './ContractHealth';
 import { FundForm } from './FundForm';
 import { RegisterForm } from './RegisterForm';
+import { MilestonePayForm } from './MilestonePayForm';
 import { EmployeeList } from './EmployeeList';
+import { EmergencyControls } from './EmergencyControls';
+import { SetupChecklist } from './SetupChecklist';
 
 import type { Employee } from '../types';
 
@@ -62,7 +68,8 @@ function saveTrackedAddresses(addresses: string[]): void {
 /**
  * Employer Dashboard component.
  *
- * Integrates FundForm, RegisterForm, and EmployeeList into a two-column
+ * Integrates ContractHealth, FundForm, RegisterForm, MilestonePayForm,
+ * EmployeeList, EmergencyControls, and SetupChecklist into a two-column
  * layout. Manages employee address tracking and state polling for all
  * registered employees.
  */
@@ -70,6 +77,7 @@ export function EmployerDashboard() {
   const { algodClient } = useAlgoFlowWallet();
   const { contractState, isLoading: isContractLoading, refresh: refreshContract } = useContractState();
   const appId = getAppId();
+  const assetId = getAssetId();
 
   // Tracked employee addresses (persisted in localStorage)
   const [trackedAddresses, setTrackedAddresses] = useState<string[]>(loadTrackedAddresses);
@@ -80,6 +88,9 @@ export function EmployerDashboard() {
 
   // Contract PAYUSD balance
   const [contractBalance, setContractBalance] = useState<number | null>(null);
+
+  // Whether the contract is opted into the salary ASA
+  const [isAsaOptedIn, setIsAsaOptedIn] = useState(false);
 
   // Ref to avoid stale closures in interval
   const trackedRef = useRef(trackedAddresses);
@@ -127,11 +138,12 @@ export function EmployerDashboard() {
   }, [algodClient, appId]);
 
   /**
-   * Fetch the contract's PAYUSD balance.
+   * Fetch the contract's PAYUSD balance and ASA opt-in status.
    */
   const fetchContractBalance = useCallback(async () => {
     if (appId === 0) {
       setContractBalance(null);
+      setIsAsaOptedIn(false);
       return;
     }
 
@@ -140,19 +152,22 @@ export function EmployerDashboard() {
       const accountInfo = await algodClient.accountInformation(appAddress).do();
       const assets = accountInfo.assets;
       if (assets) {
-        const assetId = contractState?.salaryAsset ?? 0;
+        const targetAssetId = assetId || (contractState?.salaryAsset ?? 0);
         for (const asset of assets) {
-          if (Number(asset.assetId) === assetId) {
+          if (Number(asset.assetId) === targetAssetId) {
             setContractBalance(Number(asset.amount));
+            setIsAsaOptedIn(true);
             return;
           }
         }
       }
       setContractBalance(0);
+      setIsAsaOptedIn(false);
     } catch {
       setContractBalance(null);
+      setIsAsaOptedIn(false);
     }
-  }, [algodClient, appId, contractState?.salaryAsset]);
+  }, [algodClient, appId, assetId, contractState?.salaryAsset]);
 
   // Initial fetch and polling for employee states
   useEffect(() => {
@@ -206,16 +221,36 @@ export function EmployerDashboard() {
     }, 2000);
   }
 
-  // Calculate total burn rate (sum of all active employee rates)
-  const totalBurnRate = employees
-    .filter((e) => e.isActive)
-    .reduce((sum, e) => sum + e.salaryRate, 0);
+  /**
+   * Handle successful milestone payment — refresh balances.
+   */
+  function handleMilestoneSuccess() {
+    setTimeout(() => {
+      void fetchContractBalance();
+      void refreshContract();
+    }, 2000);
+  }
 
-  // Calculate runway in hours
-  const runwayHours =
-    contractBalance !== null && totalBurnRate > 0
-      ? contractBalance / totalBurnRate
-      : null;
+  /**
+   * Handle successful emergency pause — refresh state.
+   */
+  function handlePauseSuccess() {
+    setTimeout(() => {
+      void refreshContract();
+      void fetchEmployeeStates();
+    }, 2000);
+  }
+
+  /**
+   * Scroll helpers for SetupChecklist action buttons.
+   */
+  function scrollToFund() {
+    document.getElementById('fund-section')?.scrollIntoView({ behavior: 'smooth' });
+  }
+
+  function scrollToRegister() {
+    document.getElementById('register-section')?.scrollIntoView({ behavior: 'smooth' });
+  }
 
   const isGloballyPaused = contractState?.isPaused ?? false;
 
@@ -249,111 +284,46 @@ export function EmployerDashboard() {
           </p>
         </div>
 
+        {/* Setup Checklist — shown at top when setup is incomplete */}
+        <SetupChecklist
+          contractState={contractState}
+          contractBalance={contractBalance}
+          isAsaOptedIn={isAsaOptedIn}
+          isLoading={isContractLoading}
+          onScrollToFund={scrollToFund}
+          onScrollToRegister={scrollToRegister}
+        />
+
         <div className="grid grid-cols-1 lg:grid-cols-[380px_1fr] gap-6">
-          {/* Left column: Health + Fund + Register */}
+          {/* Left column: Health + Fund + Register + Milestone */}
           <div className="space-y-6">
-            {/* Contract Health Overview */}
-            <div className="rounded-2xl border border-white/10 bg-white/5 backdrop-blur-[18px] p-6 shadow-lg">
-              <h3 className="font-heading text-lg tracking-tight text-text-light mb-4">
-                Contract Health
-              </h3>
-
-              <div className="space-y-3">
-                {/* Contract PAYUSD balance */}
-                <div className="flex items-center justify-between">
-                  <span className="text-sm text-text-light/60">PAYUSD Balance</span>
-                  <span className="font-mono text-sm text-text-light">
-                    {contractBalance !== null
-                      ? `$${formatTokenAmount(contractBalance, ASSET_DECIMALS)}`
-                      : '---'}
-                  </span>
-                </div>
-
-                {/* Total employees */}
-                <div className="flex items-center justify-between">
-                  <span className="text-sm text-text-light/60">Total Employees</span>
-                  <span className="font-mono text-sm text-text-light">
-                    {isContractLoading ? '---' : (contractState?.totalEmployees ?? 0)}
-                  </span>
-                </div>
-
-                {/* Total streamed */}
-                <div className="flex items-center justify-between">
-                  <span className="text-sm text-text-light/60">Total Streamed</span>
-                  <span className="font-mono text-sm text-text-light/70">
-                    {contractState
-                      ? `$${formatTokenAmount(contractState.totalStreamed, ASSET_DECIMALS)}`
-                      : '---'}
-                  </span>
-                </div>
-
-                {/* Burn rate */}
-                <div className="flex items-center justify-between">
-                  <span className="text-sm text-text-light/60">Burn Rate</span>
-                  <span className="font-mono text-sm text-text-light/70">
-                    ${formatTokenAmount(totalBurnRate, ASSET_DECIMALS)}/hr
-                  </span>
-                </div>
-
-                {/* Runway */}
-                {runwayHours !== null && (
-                  <div className="mt-2 pt-2 border-t border-white/5">
-                    <div className="flex items-center justify-between mb-1.5">
-                      <span className="text-sm text-text-light/60">Runway</span>
-                      <span className={cn(
-                        'font-mono text-sm',
-                        runwayHours < 24 ? 'text-accent' : runwayHours < 72 ? 'text-amber-400' : 'text-stream-green',
-                      )}>
-                        {runwayHours < 1
-                          ? `${Math.round(runwayHours * 60)} min`
-                          : runwayHours < 48
-                            ? `${runwayHours.toFixed(1)} hours`
-                            : `${(runwayHours / 24).toFixed(1)} days`}
-                      </span>
-                    </div>
-                    {/* Runway bar */}
-                    <div className="h-1.5 rounded-full bg-white/10 overflow-hidden">
-                      <div
-                        className={cn(
-                          'h-full rounded-full transition-all',
-                          runwayHours < 24
-                            ? 'bg-accent'
-                            : runwayHours < 72
-                              ? 'bg-amber-400'
-                              : 'bg-stream-green',
-                        )}
-                        style={{
-                          width: `${Math.min(100, (runwayHours / 720) * 100)}%`,
-                        }}
-                      />
-                    </div>
-                    {runwayHours < 24 && (
-                      <p className="mt-2 text-xs text-accent">
-                        Low Funds: Less than 24h runway remaining
-                      </p>
-                    )}
-                  </div>
-                )}
-
-                {/* Global pause status */}
-                {isGloballyPaused && (
-                  <div className="mt-2 rounded-lg bg-accent/10 border border-accent/20 p-2">
-                    <p className="text-xs text-accent font-medium">
-                      All streams are globally paused
-                    </p>
-                  </div>
-                )}
-              </div>
-            </div>
+            {/* Contract Health Panel */}
+            <ContractHealth
+              contractState={contractState}
+              isLoading={isContractLoading}
+              contractBalance={contractBalance}
+              employees={employees}
+            />
 
             {/* Fund Form */}
-            <FundForm onSuccess={handleFundSuccess} />
+            <div id="fund-section">
+              <FundForm onSuccess={handleFundSuccess} />
+            </div>
 
             {/* Register Form */}
-            <RegisterForm
-              onSuccess={handleRegisterSuccess}
-              maxEmployees={MAX_EMPLOYEES}
-              currentEmployeeCount={employees.length}
+            <div id="register-section">
+              <RegisterForm
+                onSuccess={handleRegisterSuccess}
+                maxEmployees={MAX_EMPLOYEES}
+                currentEmployeeCount={employees.length}
+              />
+            </div>
+
+            {/* Milestone Pay Form */}
+            <MilestonePayForm
+              employees={employees}
+              contractBalance={contractBalance}
+              onSuccess={handleMilestoneSuccess}
             />
           </div>
 
@@ -366,6 +336,14 @@ export function EmployerDashboard() {
               onMutate={handleEmployeeMutate}
             />
           </div>
+        </div>
+
+        {/* Emergency Controls — full width at bottom */}
+        <div className="mt-6">
+          <EmergencyControls
+            isPaused={isGloballyPaused}
+            onSuccess={handlePauseSuccess}
+          />
         </div>
 
         {/* Back link */}
