@@ -156,7 +156,7 @@ class PayrollStream(ARC4Contract):
         assert self.is_paused.value == UInt64(0), "Contract is paused"
 
         accrued = self._calculate_accrued(employee)
-        assert accrued > 0, "Nothing to withdraw"
+        assert accrued >= UInt64(1000), "Below minimum withdrawal (0.001 PAYUSD)"
 
         # Overdraft protection: check contract balance
         balance, _exists = op.AssetHoldingGet.asset_balance(
@@ -213,6 +213,9 @@ class PayrollStream(ARC4Contract):
         """
         rate = self.salary_rate[employee]
         elapsed = Global.latest_timestamp - self.last_withdrawal[employee]
+        # NOTE: Integer division rounds down. For rates < 3600 base units/hr,
+        # accrual may be 0 for short elapsed times. Minimum practical rate is
+        # 3600 base units/hr (0.0036 PAYUSD/hr) for per-second granularity.
         return rate * elapsed // UInt64(3600)
 
     @subroutine

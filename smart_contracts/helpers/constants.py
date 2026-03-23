@@ -20,3 +20,6 @@ TX_CONFIRMATION_ROUNDS: Final[int] = 4
 
 # Streaming calculation
 SECONDS_PER_HOUR: Final[int] = 3600
+
+# Withdrawal constraints
+MIN_WITHDRAWAL_AMOUNT: Final[int] = 1000  # 0.001 PAYUSD minimum per withdrawal

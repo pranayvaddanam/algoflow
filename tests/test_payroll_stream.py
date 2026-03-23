@@ -880,3 +880,123 @@ class TestPauseAll:
                 method="pause_all",
                 note=f"bad-pa-{uuid.uuid4()}".encode(),
             ))
+
+    def test_pause_all_is_idempotent(
+        self,
+        deployed_app: AppClient,
+    ):
+        """Verify calling pause_all twice succeeds without error."""
+        deployed_app.send.call(AppClientMethodCallParams(
+            method="pause_all",
+            note=f"pa-idem-1-{uuid.uuid4()}".encode(),
+        ))
+        # Second call should also succeed (idempotent)
+        deployed_app.send.call(AppClientMethodCallParams(
+            method="pause_all",
+            note=f"pa-idem-2-{uuid.uuid4()}".encode(),
+        ))
+        global_state = deployed_app.get_global_state()
+        assert global_state["is_paused"].value == 1
+
+
+class TestEdgeCases:
+    """Edge case tests for input validation and boundary conditions."""
+
+    def test_register_rejects_zero_rate(
+        self,
+        deployed_app: AppClient,
+        algorand: AlgorandClient,
+        employer,
+    ):
+        """Verify register_employee rejects rate=0."""
+        # Create a fresh account to register
+        edge_acct = algorand.account.random()
+        algorand.send.payment(PaymentParams(
+            sender=employer.address,
+            receiver=edge_acct.address,
+            amount=AlgoAmount.from_algo(1),
+            note=f"fund-edge-{uuid.uuid4()}".encode(),
+        ))
+        # Opt into ASA
+        asset_id = deployed_app.get_global_state()["salary_asset"].value
+        algorand.send.asset_opt_in(AssetOptInParams(
+            sender=edge_acct.address,
+            asset_id=asset_id,
+        ))
+        # Opt into app
+        edge_client = deployed_app.clone(default_sender=edge_acct.address)
+        edge_client.send.bare.opt_in(AppClientBareCallParams(
+            note=f"opt-edge-{uuid.uuid4()}".encode(),
+        ))
+        # Try registering with rate=0
+        with pytest.raises(Exception):
+            deployed_app.send.call(AppClientMethodCallParams(
+                method="register_employee",
+                args=[edge_acct.address, 0],
+                note=f"reg-zero-{uuid.uuid4()}".encode(),
+            ))
+
+    def test_withdraw_rejects_below_minimum(
+        self,
+        deployed_app: AppClient,
+        registered_employee,
+    ):
+        """Verify withdraw rejects accrual below 1000 base units (0.001 PAYUSD).
+
+        With rate=3,600,000,000/hr, even 1 second = 1,000,000 base units,
+        which is above minimum. So we DON'T sleep — attempt immediate withdrawal
+        where elapsed=0 and accrued=0, which is below the 1000 minimum.
+        """
+        _employee, employee_client = registered_employee
+
+        # Immediate withdraw — elapsed ~0 seconds, accrued < 1000
+        with pytest.raises(Exception):
+            employee_client.send.call(AppClientMethodCallParams(
+                method="withdraw",
+                extra_fee=AlgoAmount.from_micro_algo(1000),
+                note=f"withdraw-immediate-{uuid.uuid4()}".encode(),
+            ))
+
+    def test_update_rate_rejects_paused_employee(
+        self,
+        deployed_app: AppClient,
+        algorand: AlgorandClient,
+        employer,
+        registered_employee,
+    ):
+        """Verify update_rate rejects calls on paused employees."""
+        employee, _employee_client = registered_employee
+
+        advance_time(algorand, employer.address, seconds=2)
+
+        # Pause the employee's stream first
+        deployed_app.send.call(AppClientMethodCallParams(
+            method="pause_stream",
+            args=[employee.address],
+            extra_fee=AlgoAmount.from_micro_algo(1000),
+            note=f"pause-for-rate-{uuid.uuid4()}".encode(),
+        ))
+
+        # Now try to update rate — should fail because stream is paused
+        with pytest.raises(Exception):
+            deployed_app.send.call(AppClientMethodCallParams(
+                method="update_rate",
+                args=[employee.address, 5_000_000_000],
+                extra_fee=AlgoAmount.from_micro_algo(1000),
+                note=f"rate-paused-{uuid.uuid4()}".encode(),
+            ))
+
+    def test_milestone_pay_rejects_zero_amount(
+        self,
+        deployed_app: AppClient,
+        registered_employee,
+    ):
+        """Verify milestone_pay rejects amount=0."""
+        employee, _employee_client = registered_employee
+
+        with pytest.raises(Exception):
+            deployed_app.send.call(AppClientMethodCallParams(
+                method="milestone_pay",
+                args=[employee.address, 0],
+                note=f"ms-zero-{uuid.uuid4()}".encode(),
+            ))
