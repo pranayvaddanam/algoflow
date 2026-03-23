@@ -1,0 +1,67 @@
+{
+    "name": "PayrollStream",
+    "structs": {},
+    "methods": [],
+    "arcs": [
+        22,
+        28
+    ],
+    "desc": "Decentralized payroll streaming contract.\n\n    Employers register employees with hourly salary rates. The contract\n    mathematically computes accrued salary based on elapsed time, and\n    employees withdraw on demand via inner asset transfers.\n\n    Global state (5 keys):\n        employer       \u2014 Address of the employer who created the contract (byte-slice)\n        salary_asset   \u2014 ASA ID of the PAYUSD salary token (uint64)\n        total_employees \u2014 Count of currently registered employees (uint64)\n        total_streamed \u2014 Cumulative tokens disbursed to all employees (uint64)\n        is_paused      \u2014 Global emergency pause flag: 0 = active, 1 = paused (uint64)\n\n    Local state per employee (5 keys):\n        salary_rate     \u2014 Tokens per hour in base units (uint64)\n        stream_start    \u2014 Unix timestamp when streaming began (uint64)\n        last_withdrawal \u2014 Unix timestamp of last withdrawal (uint64)\n        total_withdrawn \u2014 Cumulative tokens withdrawn (uint64)\n        is_active       \u2014 Stream status: 0 = paused, 1 = active (uint64)\n    ",
+    "networks": {},
+    "state": {
+        "schema": {
+            "global": {
+                "ints": 0,
+                "bytes": 0
+            },
+            "local": {
+                "ints": 0,
+                "bytes": 0
+            }
+        },
+        "keys": {
+            "global": {},
+            "local": {},
+            "box": {}
+        },
+        "maps": {
+            "global": {},
+            "local": {},
+            "box": {}
+        }
+    },
+    "bareActions": {
+        "create": [
+            "NoOp"
+        ],
+        "call": []
+    },
+    "sourceInfo": {
+        "approval": {
+            "sourceInfo": [],
+            "pcOffsetMethod": "none"
+        },
+        "clear": {
+            "sourceInfo": [],
+            "pcOffsetMethod": "none"
+        }
+    },
+    "source": {
+        "approval": "I3ByYWdtYSB2ZXJzaW9uIDExCiNwcmFnbWEgdHlwZXRyYWNrIGZhbHNlCgovLyBhbGdvcHkuYXJjNC5BUkM0Q29udHJhY3QuYXBwcm92YWxfcHJvZ3JhbSgpIC0+IHVpbnQ2NDoKbWFpbjoKICAgIC8vIHNtYXJ0X2NvbnRyYWN0cy9wYXlyb2xsX3N0cmVhbS9jb250cmFjdC5weToyMgogICAgLy8gY2xhc3MgUGF5cm9sbFN0cmVhbShBUkM0Q29udHJhY3QpOgogICAgdHhuIE51bUFwcEFyZ3MKICAgICEKICAgIGFzc2VydAogICAgdHhuIE9uQ29tcGxldGlvbgogICAgIQogICAgdHhuIEFwcGxpY2F0aW9uSUQKICAgICEKICAgICYmCiAgICByZXR1cm4K",
+        "clear": "I3ByYWdtYSB2ZXJzaW9uIDExCiNwcmFnbWEgdHlwZXRyYWNrIGZhbHNlCgovLyBhbGdvcHkuYXJjNC5BUkM0Q29udHJhY3QuY2xlYXJfc3RhdGVfcHJvZ3JhbSgpIC0+IHVpbnQ2NDoKbWFpbjoKICAgIHB1c2hpbnQgMQogICAgcmV0dXJuCg=="
+    },
+    "byteCode": {
+        "approval": "CzEbFEQxGRQxGBQQQw==",
+        "clear": "C4EBQw=="
+    },
+    "compilerInfo": {
+        "compiler": "puya",
+        "compilerVersion": {
+            "major": 5,
+            "minor": 7,
+            "patch": 1
+        }
+    },
+    "events": [],
+    "templateVariables": {}
+}

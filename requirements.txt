@@ -1,0 +1,4 @@
+algorand-python
+py-algorand-sdk>=2.6.0
+algokit-utils>=3.0.0
+pytest>=8.0.0

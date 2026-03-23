@@ -1,0 +1,7 @@
+{"ts":"2026-03-23T09:35:00Z","event":"sprint_started","sprint":0,"stories":2,"complexity":"LOW"}
+{"ts":"2026-03-23T09:36:00Z","event":"wave_started","wave":1,"agents":["sprint0-scaffold"],"parallel":false,"write_targets":{"sprint0-scaffold":["smart_contracts/","tests/","scripts/",".env",".env.example",".gitignore",".algokit.toml","pyproject.toml","requirements.txt","frontend/"]}}
+{"ts":"2026-03-23T09:36:05Z","event":"agent_spawned","agent":"sprint0-scaffold","wave":1,"stories":["STORY-0-001","STORY-0-002"],"prompt_file":"prompts/sprint-0-wave-1-sprint0-scaffold.md","isolation":"main"}
+{"ts":"2026-03-23T09:46:00Z","event":"agent_completed","agent":"sprint0-scaffold","wave":1,"status":"success","files_created":32,"files_modified":2,"tests_added":0,"duration_seconds":587}
+{"ts":"2026-03-23T09:46:30Z","event":"quality_check","wave":1,"build":"PASS","tsc":{"errors":0,"warnings":0},"pytest":{"total":0,"passing":0,"errors":0},"algokit_compile":"PASS"}
+{"ts":"2026-03-23T09:47:00Z","event":"wave_checkpoint_written","wave":1,"file":"wave-1-sprint0-checkpoint.md","lines":130}
+{"ts":"2026-03-23T09:47:30Z","event":"wave_completed","wave":1,"duration_seconds":690}

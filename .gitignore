@@ -1,0 +1,40 @@
+# Environment variables (NEVER commit secrets)
+.env
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.venv/
+venv/
+*.egg-info/
+dist/
+build/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+
+# Node.js
+node_modules/
+frontend/dist/
+frontend/node_modules/
+
+# AlgoKit
+.algokit/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# TEAL build artifacts
+*.teal
+*.map
+artifacts/

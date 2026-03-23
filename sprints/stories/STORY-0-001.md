@@ -47,11 +47,32 @@ M (Medium)
 - `.gitignore`
 
 ## Dev Agent Record
-<!-- Filled by implementing agent during /maestro-execute -->
-- **Agent ID**:
+- **Agent ID**: sprint0-scaffold
 - **Files Created**:
-- **Files Modified**:
-- **Tests Written**:
+  - `smart_contracts/__init__.py`
+  - `smart_contracts/payroll_stream/__init__.py`
+  - `smart_contracts/payroll_stream/contract.py` (PayrollStream skeleton with state declarations)
+  - `smart_contracts/payroll_stream/deploy_config.py`
+  - `smart_contracts/helpers/__init__.py`
+  - `smart_contracts/helpers/build.py`
+  - `smart_contracts/helpers/constants.py`
+  - `tests/__init__.py`
+  - `tests/conftest.py` (skeleton with commented-out fixtures)
+  - `scripts/.gitkeep`
+  - `.algokit.toml`
+  - `pyproject.toml`
+  - `requirements.txt`
+  - `.env.example`
+  - `.env` (LocalNet defaults)
+  - `.gitignore`
+- **Files Modified**: None
+- **Tests Written**: `tests/conftest.py` (fixture stubs, no executable tests yet)
 - **Decisions Made**:
+  - Used class-level type annotation pattern for GlobalState/LocalState declarations (e.g., `employer: GlobalState[Account]`), which is the Algorand Python convention. The Puya compiler optimizes away unused state in the ARC56 schema — the schema will auto-populate when methods are added in Sprint 1.
+  - `algopy` cannot be imported at runtime (raises RuntimeError) — this is by design. The module is a stub for the Puya compiler. Contract import verification relies on `algokit compile` instead.
+  - `employer` declared as `GlobalState[Account]` (byte-slice on AVM) per data model requirement. `salary_asset` declared as `GlobalState[Asset]` (uint64 reference).
+  - AlgoKit compile produces correct TEAL output (PayrollStream.approval.teal, PayrollStream.clear.teal, PayrollStream.arc56.json).
+  - Python 3.14 used (available on system); `requires-python >= 3.12` set in pyproject.toml.
 - **Blockers Encountered**:
-- **Completion Status**:
+  - None. `algokit compile` succeeded. `pytest` collected 0 tests (expected for skeleton).
+- **Completion Status**: complete

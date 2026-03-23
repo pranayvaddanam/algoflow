@@ -1,0 +1,91 @@
+@import "tailwindcss";
+
+/*
+ * AlgoFlow Design System
+ *
+ * CSS custom properties and Tailwind v4 theme configuration.
+ * All tokens defined per CLAUDE.md design system specification.
+ */
+
+/* ------------------------------------------------------------------ */
+/*  Design Tokens (CSS Custom Properties)                              */
+/* ------------------------------------------------------------------ */
+
+:root {
+  --color-primary: #137636;
+  --color-primary-dark: #0d5427;
+  --color-accent: #f25f6c;
+  --color-surface: #fffdf8;
+  --color-bg-dark: #0a0f0d;
+  --color-text-primary: #1a1a1a;
+  --color-text-light: #f0f0f0;
+  --color-stream-green: #5dcaa5;
+}
+
+/* ------------------------------------------------------------------ */
+/*  Tailwind v4 Theme Extensions                                       */
+/* ------------------------------------------------------------------ */
+
+@theme {
+  /* Colors */
+  --color-primary: #137636;
+  --color-primary-dark: #0d5427;
+  --color-accent: #f25f6c;
+  --color-surface: #fffdf8;
+  --color-bg-dark: #0a0f0d;
+  --color-text-primary: #1a1a1a;
+  --color-text-light: #f0f0f0;
+  --color-stream-green: #5dcaa5;
+
+  /* Fonts */
+  --font-body: "Geist", system-ui, -apple-system, sans-serif;
+  --font-heading: "Fraunces", "Georgia", serif;
+  --font-mono: ui-monospace, "SFMono-Regular", "Menlo", "Consolas", monospace;
+}
+
+/* ------------------------------------------------------------------ */
+/*  Base Styles                                                        */
+/* ------------------------------------------------------------------ */
+
+html {
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+body {
+  font-family: var(--font-body);
+  background-color: var(--color-bg-dark);
+  color: var(--color-text-light);
+  line-height: 1.6;
+}
+
+/* Heading typography */
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--font-heading);
+  letter-spacing: -0.03em;
+}
+
+/* Monospace elements */
+code, pre, kbd, samp {
+  font-family: var(--font-mono);
+}
+
+/* ------------------------------------------------------------------ */
+/*  Utility Classes                                                    */
+/* ------------------------------------------------------------------ */
+
+.font-heading {
+  font-family: var(--font-heading);
+}
+
+.font-mono {
+  font-family: var(--font-mono);
+}
+
+/* Glassmorphism base */
+.glass {
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
+  background-color: rgba(255, 253, 248, 0.05);
+  border: 1px solid rgba(255, 253, 248, 0.1);
+}

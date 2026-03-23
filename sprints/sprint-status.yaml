@@ -11,25 +11,26 @@ generated_at: "2026-03-23"
 sprints:
   sprint-0:
     name: "Scaffold & Environment"
-    status: "backlog"
+    status: "in_progress"
     goal: "Establish development environment, project skeleton, verify LocalNet and compilation"
     estimated_hours: 3-4
+    started_at: "2026-03-23T09:35:00Z"
     stories:
       STORY-0-001:
         title: "Project scaffold and AlgoKit initialization"
-        status: "backlog"
+        status: "in_progress"
         complexity: "M"
-        assigned_agent: null
-        started_at: null
+        assigned_agent: "sprint0-scaffold"
+        started_at: "2026-03-23T09:35:00Z"
         completed_at: null
         blockers: []
         frs: []
       STORY-0-002:
         title: "Frontend scaffold with React, Vite, Tailwind"
-        status: "backlog"
+        status: "in_progress"
         complexity: "M"
-        assigned_agent: null
-        started_at: null
+        assigned_agent: "sprint0-scaffold"
+        started_at: "2026-03-23T09:35:00Z"
         completed_at: null
         blockers: []
         frs: []
