@@ -7,3 +7,5 @@
 {"ts":"2026-03-23T11:25:00Z","event":"wave_completed","wave":2,"duration_seconds":420}
 {"ts":"2026-03-23T11:25:05Z","event":"wave_started","wave":3,"agents":["sprint2-panels"],"parallel":false,"write_targets":{"sprint2-panels":["frontend/src/components/ContractHealth.tsx","frontend/src/components/MilestonePayForm.tsx","frontend/src/components/EmergencyControls.tsx","frontend/src/components/SetupChecklist.tsx","frontend/src/components/EmployerDashboard.tsx"]}}
 {"ts":"2026-03-23T11:25:10Z","event":"agent_spawned","agent":"sprint2-panels","wave":3,"stories":["STORY-2-005"],"prompt_file":"prompts/sprint-2-wave-3-sprint2-panels.md","isolation":"main"}
+{"ts":"2026-03-23T11:30:00Z","event":"wave_completed","wave":3,"duration_seconds":300}
+{"ts":"2026-03-23T11:30:30Z","event":"sprint_completed","sprint":2,"stories_completed":5,"unit_tests":37,"frontend_components":10,"duration_seconds":1800,"anomaly_count":1}
