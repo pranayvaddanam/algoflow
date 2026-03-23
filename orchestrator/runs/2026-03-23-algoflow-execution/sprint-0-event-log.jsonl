@@ -5,3 +5,4 @@
 {"ts":"2026-03-23T09:46:30Z","event":"quality_check","wave":1,"build":"PASS","tsc":{"errors":0,"warnings":0},"pytest":{"total":0,"passing":0,"errors":0},"algokit_compile":"PASS"}
 {"ts":"2026-03-23T09:47:00Z","event":"wave_checkpoint_written","wave":1,"file":"wave-1-sprint0-checkpoint.md","lines":130}
 {"ts":"2026-03-23T09:47:30Z","event":"wave_completed","wave":1,"duration_seconds":690}
+{"ts":"2026-03-23T09:48:00Z","event":"sprint_completed","sprint":0,"stories_completed":2,"unit_tests":0,"e2e_tests":0,"coverage":0,"duration_seconds":780,"anomaly_count":0}

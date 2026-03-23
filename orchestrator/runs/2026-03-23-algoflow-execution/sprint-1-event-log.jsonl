@@ -1,0 +1,5 @@
+{"ts":"2026-03-23T09:50:00Z","event":"sprint_started","sprint":1,"stories":5,"complexity":"MEDIUM"}
+{"ts":"2026-03-23T09:50:05Z","event":"wave_started","wave":1,"agents":["sprint1-contract"],"parallel":false,"write_targets":{"sprint1-contract":["smart_contracts/payroll_stream/contract.py","tests/conftest.py","tests/test_payroll_stream.py"]}}
+{"ts":"2026-03-23T09:51:00Z","event":"agent_spawned","agent":"sprint1-contract","wave":1,"stories":["STORY-1-002","STORY-1-003","STORY-1-004"],"prompt_file":"prompts/sprint-1-wave-1-sprint1-contract.md","isolation":"main"}
+{"ts":"2026-03-23T10:10:00Z","event":"agent_completed","agent":"sprint1-contract","wave":1,"status":"success","files_created":1,"files_modified":4,"tests_added":28,"duration_seconds":1105}
+{"ts":"2026-03-23T10:10:30Z","event":"quality_check","wave":1,"build":"PASS","algokit_compile":"PASS","pytest":{"total":28,"passing":28,"errors":0},"tsc":"N/A"}

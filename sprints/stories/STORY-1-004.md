@@ -55,11 +55,10 @@ L (Large)
 - `tests/test_payroll_stream.py` (tests for each method: success path, auth rejection, edge cases)
 
 ## Dev Agent Record
-<!-- Filled by implementing agent during /maestro-execute -->
-- **Agent ID**:
-- **Files Created**:
-- **Files Modified**:
-- **Tests Written**:
-- **Decisions Made**:
-- **Blockers Encountered**:
-- **Completion Status**:
+- **Agent ID**: Claude Opus 4.6 (1M context)
+- **Files Created**: (same as STORY-1-002 — single implementation pass)
+- **Files Modified**: `smart_contracts/payroll_stream/contract.py`, `tests/test_payroll_stream.py`
+- **Tests Written**: `test_update_rate_settles_and_applies_new_rate`, `test_pause_stream_settles_and_deactivates`, `test_pause_stream_rejects_already_paused`, `test_resume_stream_reactivates_without_retroactive_accrual`, `test_resume_rejects_active_stream`, `test_remove_employee_final_payout_and_decrements`, `test_remove_rejects_unregistered`, `test_milestone_pay_sends_correct_amount`, `test_milestone_pay_rejects_insufficient_balance`, `test_pause_all_blocks_withdrawals`, `test_pause_all_rejects_non_employer`
+- **Decisions Made**: (1) `remove_employee` clears local state by setting all fields to UInt64(0) rather than deleting keys (simpler and safer on AVM). (2) `resume_stream` does NO settlement and NO inner transaction — just resets timestamps. (3) `milestone_pay` checks contract balance via `op.AssetHoldingGet` before sending. (4) `pause_all` only toggles global `is_paused` flag — no per-employee state changes.
+- **Blockers Encountered**: None.
+- **Completion Status**: COMPLETE — 6/6 methods implemented (update_rate, pause_stream, resume_stream, remove_employee, milestone_pay, pause_all), 11/11 tests passing

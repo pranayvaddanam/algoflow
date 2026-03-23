@@ -52,11 +52,10 @@ L (Large)
 - `tests/test_payroll_stream.py` (tests for create, opt_in_asset, fund, register_employee, auth rejection)
 
 ## Dev Agent Record
-<!-- Filled by implementing agent during /maestro-execute -->
-- **Agent ID**:
-- **Files Created**:
-- **Files Modified**:
-- **Tests Written**:
-- **Decisions Made**:
-- **Blockers Encountered**:
-- **Completion Status**:
+- **Agent ID**: Claude Opus 4.6 (1M context)
+- **Files Created**: `tests/test_payroll_stream.py`
+- **Files Modified**: `smart_contracts/payroll_stream/contract.py`, `tests/conftest.py`
+- **Tests Written**: `test_create_initializes_global_state`, `test_opt_in_asset_succeeds_for_employer`, `test_opt_in_asset_rejects_non_employer`, `test_fund_increases_contract_balance`, `test_fund_rejects_non_employer`, `test_register_employee_sets_local_state`, `test_register_employee_increments_total`, `test_register_rejects_duplicate_employee`, `test_register_rejects_non_employer`
+- **Decisions Made**: (1) Used `__init__` for state proxy initialization instead of class-level annotations (PuyaPy 5.7 requirement). (2) Added bare `opt_in` method for employee app opt-in separate from `register_employee` (employer calls register as NoOp after employee opts in). (3) Used `op.AssetHoldingGet.asset_balance` for overdraft protection (not `op.AssetHolding`).
+- **Blockers Encountered**: (1) PuyaPy compiler requires state proxies to be initialized in `__init__`, not as class-level `GlobalState[T]`/`LocalState[T]` annotations. (2) `register_employee` cannot use `allow_actions=["OptIn"]` because the employer sends the transaction, not the employee — needed separate bare OptIn method.
+- **Completion Status**: COMPLETE — 4/4 methods implemented, 9/9 tests passing
