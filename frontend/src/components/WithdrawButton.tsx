@@ -11,7 +11,7 @@
  * - Transaction is in progress
  */
 
-import { useState } from 'react';
+import { useState, useRef, useEffect } from 'react';
 
 import { usePayrollContract } from '../hooks/usePayrollContract';
 import { formatTokenAmount, cn } from '../lib/utils';
@@ -71,6 +71,14 @@ export function WithdrawButton({
 }: WithdrawButtonProps) {
   const { withdraw } = usePayrollContract();
   const [state, setState] = useState<WithdrawState>({ status: 'idle' });
+  const dismissTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  // Cleanup dismiss timers on unmount
+  useEffect(() => {
+    return () => {
+      if (dismissTimerRef.current) clearTimeout(dismissTimerRef.current);
+    };
+  }, []);
 
   const isBelowMinimum = accrued < MIN_WITHDRAWAL_BASE_UNITS;
   const isDisabled = isBelowMinimum || isPaused || isGloballyPaused || state.status === 'signing';
@@ -94,7 +102,8 @@ export function WithdrawButton({
       onWithdrawSuccess(txId, withdrawnAmount);
 
       // Auto-dismiss success after 8 seconds
-      setTimeout(() => {
+      if (dismissTimerRef.current) clearTimeout(dismissTimerRef.current);
+      dismissTimerRef.current = setTimeout(() => {
         setState({ status: 'idle' });
       }, 8000);
     } catch (err) {
@@ -112,7 +121,8 @@ export function WithdrawButton({
       }
 
       // Auto-dismiss error after 6 seconds
-      setTimeout(() => {
+      if (dismissTimerRef.current) clearTimeout(dismissTimerRef.current);
+      dismissTimerRef.current = setTimeout(() => {
         setState({ status: 'idle' });
       }, 6000);
     }

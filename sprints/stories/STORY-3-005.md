@@ -36,11 +36,18 @@ M (Medium)
 - `scripts/reset.py`
 
 ## Dev Agent Record
-<!-- Filled by implementing agent during /maestro-execute -->
-- **Agent ID**:
+- **Agent ID**: sprint3-demo-scripts
 - **Files Created**:
-- **Files Modified**:
-- **Tests Written**:
+  - `scripts/demo.py` — Automated 9-step demo: create ASA, deploy, fund, register 3 employees, wait for accrual, withdraw, update rate, pause stream. Prints step-by-step progress and full transaction summary.
+  - `scripts/reset.py` — 7-step fresh deployment: creates new ASA + contract, configures clawback, funds PAYUSD, updates .env. No cleanup of old state.
+- **Files Modified**: None
+- **Tests Written**: N/A (scripts verified via Python AST syntax check; runtime requires Docker/LocalNet)
 - **Decisions Made**:
-- **Blockers Encountered**:
-- **Completion Status**:
+  - Demo script creates everything from scratch (ASA + contract + employees) rather than reusing existing deployments, ensuring reproducibility
+  - 10-second accrual wait with countdown display for visual demo effect
+  - Transaction log tracks all txIDs for summary output
+  - Reset script reuses update_env_file pattern from deploy.py for .env management
+  - Both scripts support --network flag (localnet/testnet) matching existing script patterns
+  - Employee accounts created with algorand.account.random() for isolation between demo runs
+- **Blockers Encountered**: None
+- **Completion Status**: DONE

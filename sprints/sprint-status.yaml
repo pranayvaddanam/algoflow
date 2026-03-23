@@ -160,55 +160,61 @@ sprints:
 
   sprint-3:
     name: "Employee Dashboard, Landing Page, Shared UX & Demo Scripts"
-    status: "in_progress"
+    status: "done"
     started_at: "2026-03-24T01:00:00Z"
+    completed_at: "2026-03-24T02:00:00Z"
     goal: "Build employee dashboard with streaming counter, landing page, shared UX, demo scripts"
     estimated_hours: 8-10
     depends_on: ["sprint-2"]
     stories:
       STORY-3-001:
         title: "Streaming counter and accrual hook"
-        status: "backlog"
+        status: "done"
         complexity: "L"
-        assigned_agent: null
-        started_at: null
-        completed_at: null
+        assigned_agent: "sprint3-employee-core"
+        started_at: "2026-03-24T01:00:00Z"
+        completed_at: "2026-03-24T01:20:00Z"
+        verified_at: "2026-03-24T01:20:30Z"
         blockers: []
         frs: ["FR-EMPLOYEE-002"]
       STORY-3-002:
         title: "Employee dashboard: withdraw, history, rate display"
-        status: "backlog"
+        status: "done"
         complexity: "L"
-        assigned_agent: null
-        started_at: null
-        completed_at: null
+        assigned_agent: "sprint3-employee-core"
+        started_at: "2026-03-24T01:00:00Z"
+        completed_at: "2026-03-24T01:20:00Z"
+        verified_at: "2026-03-24T01:20:30Z"
         blockers: []
         frs: ["FR-EMPLOYEE-001", "FR-EMPLOYEE-003", "FR-EMPLOYEE-004", "FR-EMPLOYEE-005"]
       STORY-3-003:
         title: "Landing page, role routing, and shared navigation"
-        status: "backlog"
+        status: "done"
         complexity: "M"
-        assigned_agent: null
-        started_at: null
-        completed_at: null
+        assigned_agent: "sprint3-landing-routing"
+        started_at: "2026-03-24T01:30:00Z"
+        completed_at: "2026-03-24T01:45:00Z"
+        verified_at: "2026-03-24T01:45:30Z"
         blockers: []
         frs: ["FR-SHARED-001", "FR-SHARED-002"]
       STORY-3-004:
         title: "Shared UX: loading states, error handling, toasts, network badge, explorer links"
-        status: "backlog"
+        status: "done"
         complexity: "L"
-        assigned_agent: null
-        started_at: null
-        completed_at: null
+        assigned_agent: "sprint3-shared-ux"
+        started_at: "2026-03-24T01:30:00Z"
+        completed_at: "2026-03-24T01:50:00Z"
+        verified_at: "2026-03-24T01:50:30Z"
         blockers: []
         frs: ["FR-SHARED-003", "FR-SHARED-004", "FR-SHARED-005", "FR-SHARED-006"]
       STORY-3-005:
         title: "Demo script and demo reset script"
-        status: "backlog"
+        status: "done"
         complexity: "M"
-        assigned_agent: null
-        started_at: null
-        completed_at: null
+        assigned_agent: "sprint3-demo-scripts"
+        started_at: "2026-03-24T01:50:00Z"
+        completed_at: "2026-03-24T02:00:00Z"
+        verified_at: "2026-03-24T02:00:30Z"
         blockers: []
         frs: ["FR-DEVOPS-003"]
 

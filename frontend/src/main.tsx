@@ -5,6 +5,7 @@ import { WalletManager, WalletId, NetworkId } from '@txnlab/use-wallet';
 import { WalletProvider } from '@txnlab/use-wallet-react';
 
 import { App } from './App';
+import { ToastProvider } from './components/Toast';
 import { getNetwork } from './lib/algorand';
 import './index.css';
 
@@ -36,7 +37,9 @@ createRoot(rootElement).render(
   <StrictMode>
     <WalletProvider manager={walletManager}>
       <BrowserRouter>
-        <App />
+        <ToastProvider>
+          <App />
+        </ToastProvider>
       </BrowserRouter>
     </WalletProvider>
   </StrictMode>,

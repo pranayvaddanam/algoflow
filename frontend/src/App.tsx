@@ -1,59 +1,11 @@
 import { Routes, Route } from 'react-router-dom';
 
 import { WalletConnect } from './components/WalletConnect';
+import { Landing } from './components/Landing';
 import { EmployerDashboard } from './components/EmployerDashboard';
 import { EmployeeDashboard } from './components/EmployeeDashboard';
 import { useContractState } from './hooks/useContractState';
 import { useAlgoFlowWallet } from './hooks/useWallet';
-
-/**
- * Landing page with role selection links.
- */
-function Landing() {
-  const { isConnected } = useAlgoFlowWallet();
-  const { contractState } = useContractState();
-  const { activeAddress } = useAlgoFlowWallet();
-
-  const isEmployer = isConnected
-    && contractState !== null
-    && activeAddress === contractState.employer;
-
-  return (
-    <div className="min-h-screen flex flex-col items-center justify-center text-text-light">
-      <h1 className="font-heading text-5xl tracking-tight mb-4">
-        AlgoFlow
-      </h1>
-      <p className="text-lg text-text-light/70 max-w-md text-center">
-        Real-time payroll streaming on Algorand. Continuous salary accrual
-        with instant settlement.
-      </p>
-      <div className="mt-6">
-        <WalletConnect />
-      </div>
-      {isConnected && (
-        <div className="mt-8 flex gap-4">
-          <a
-            href={isEmployer ? '/employer' : '/employee'}
-            className="px-6 py-3 rounded-lg bg-primary text-text-light font-medium hover:bg-primary-dark transition-colors"
-          >
-            Employer Dashboard
-          </a>
-          <a
-            href="/employee"
-            className="px-6 py-3 rounded-lg border border-text-light/20 text-text-light font-medium hover:bg-text-light/10 transition-colors"
-          >
-            Employee Dashboard
-          </a>
-        </div>
-      )}
-      {!isConnected && (
-        <p className="mt-8 text-text-light/50 text-sm">
-          Connect your wallet to access the dashboards.
-        </p>
-      )}
-    </div>
-  );
-}
 
 /**
  * Employer dashboard page.
@@ -82,7 +34,10 @@ function EmployerPage() {
   if (isLoading) {
     return (
       <div className="min-h-screen flex flex-col items-center justify-center text-text-light">
-        <p className="text-text-light/70">Loading contract state...</p>
+        <div className="flex items-center gap-3">
+          <span className="w-5 h-5 border-2 border-text-light/30 border-t-stream-green rounded-full animate-spin" />
+          <p className="text-text-light/70">Loading contract state...</p>
+        </div>
       </div>
     );
   }
@@ -135,7 +90,10 @@ function EmployeePage() {
   if (isLoading) {
     return (
       <div className="min-h-screen flex flex-col items-center justify-center text-text-light">
-        <p className="text-text-light/70">Loading contract state...</p>
+        <div className="flex items-center gap-3">
+          <span className="w-5 h-5 border-2 border-text-light/30 border-t-stream-green rounded-full animate-spin" />
+          <p className="text-text-light/70">Loading contract state...</p>
+        </div>
       </div>
     );
   }
@@ -168,13 +126,19 @@ function EmployeePage() {
  *   /          - Landing page
  *   /employer  - Employer dashboard
  *   /employee  - Employee dashboard
+ *
+ * NetworkBadge is rendered on all pages via the layout wrapper in
+ * EmployerPage/EmployeePage headers and the Landing component header.
  */
 export function App() {
   return (
-    <Routes>
-      <Route path="/" element={<Landing />} />
-      <Route path="/employer" element={<EmployerPage />} />
-      <Route path="/employee" element={<EmployeePage />} />
-    </Routes>
+    <>
+      {/* NetworkBadge fallback for non-Landing pages without their own header badge */}
+      <Routes>
+        <Route path="/" element={<Landing />} />
+        <Route path="/employer" element={<EmployerPage />} />
+        <Route path="/employee" element={<EmployeePage />} />
+      </Routes>
+    </>
   );
 }

@@ -20,6 +20,7 @@ import { getAppId, getAssetId, getApplicationAddress } from '../lib/algorand';
 import { parseLocalState } from '../lib/utils';
 import { POLL_INTERVAL_MS } from '../lib/constants';
 import { WalletConnect } from './WalletConnect';
+import { NetworkBadge } from './NetworkBadge';
 import { ContractHealth } from './ContractHealth';
 import { FundForm } from './FundForm';
 import { RegisterForm } from './RegisterForm';
@@ -291,6 +292,7 @@ export function EmployerDashboard() {
             AlgoFlow
           </a>
           <div className="flex items-center gap-4">
+            <NetworkBadge />
             {contractState?.isPaused && (
               <span className="rounded-full bg-accent/20 px-3 py-1 text-xs font-medium text-accent">
                 PAUSED

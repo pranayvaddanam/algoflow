@@ -40,11 +40,18 @@ M (Medium)
 - `frontend/src/components/RoleSelector.tsx`
 
 ## Dev Agent Record
-<!-- Filled by implementing agent during /maestro-execute -->
-- **Agent ID**:
+- **Agent ID**: sprint3-landing-routing
 - **Files Created**:
+  - `frontend/src/components/Landing.tsx` — Full landing page with hero, HowItWorks, RoleSelector, auto-routing
+  - `frontend/src/components/HowItWorks.tsx` — 3-step architecture diagram with glassmorphism cards and arrow connectors
+  - `frontend/src/components/RoleSelector.tsx` — Role selection cards (employer/employee) with wallet gate
 - **Files Modified**:
-- **Tests Written**:
+  - `frontend/src/App.tsx` — Replaced inline Landing function with imported Landing component; added loading spinners
+- **Tests Written**: N/A (UI components; verified via tsc -b and npm run build)
 - **Decisions Made**:
-- **Blockers Encountered**:
-- **Completion Status**:
+  - Auto-route employer to /employer via useEffect when wallet matches contract employer
+  - Manual role selection available as fallback when wallet not connected
+  - Clicking role card without wallet scrolls to WalletConnect section with highlight ring
+  - Used useNavigate from react-router-dom for SPA navigation instead of raw <a> tags in RoleSelector
+- **Blockers Encountered**: None
+- **Completion Status**: DONE

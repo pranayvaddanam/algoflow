@@ -75,6 +75,22 @@ function decodeKey(key: Uint8Array): string {
  *
  * The `employer` key is stored as an address (32-byte public key in bytes).
  */
+/**
+ * Build a Lora Explorer URL for a given transaction ID.
+ *
+ * @param txId - The transaction ID to link to.
+ * @param network - The target network ('testnet' or 'localnet').
+ * @returns Full URL to the transaction on Lora Explorer.
+ *
+ * @example
+ * getExplorerUrl('ABC123', 'testnet')
+ * // "https://lora.algokit.io/testnet/transaction/ABC123"
+ */
+export function getExplorerUrl(txId: string, network: string): string {
+  const net = network === 'testnet' ? 'testnet' : 'localnet';
+  return `https://lora.algokit.io/${net}/transaction/${txId}`;
+}
+
 export function parseGlobalState(
   state: { key: Uint8Array; value: { type: number; uint: bigint; bytes: Uint8Array } }[],
 ): ContractState {

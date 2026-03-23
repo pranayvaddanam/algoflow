@@ -55,11 +55,24 @@ L (Large)
 - `frontend/src/lib/utils.ts` (explorer URL builder)
 
 ## Dev Agent Record
-<!-- Filled by implementing agent during /maestro-execute -->
-- **Agent ID**:
+- **Agent ID**: sprint3-shared-ux
 - **Files Created**:
+  - `frontend/src/components/Toast.tsx` — Toast notification system with ToastProvider, useToast hook, auto-dismiss with ref cleanup (AP-009)
+  - `frontend/src/components/ExplorerLink.tsx` — Transaction explorer link (Lora) with network-aware URL building
+  - `frontend/src/components/NetworkBadge.tsx` — Network indicator badge (testnet=amber, localnet=green)
 - **Files Modified**:
-- **Tests Written**:
+  - `frontend/src/lib/utils.ts` — Added getExplorerUrl(txId, network) utility
+  - `frontend/src/index.css` — Added slide-in-right animation keyframes for toast
+  - `frontend/src/main.tsx` — Wrapped App with ToastProvider
+  - `frontend/src/components/EmployerDashboard.tsx` — Added NetworkBadge to header
+  - `frontend/src/components/EmployeeDashboard.tsx` — Added NetworkBadge to both headers (registered + not-registered)
+- **Tests Written**: N/A (UI components; verified via tsc -b and npm run build)
 - **Decisions Made**:
-- **Blockers Encountered**:
-- **Completion Status**:
+  - Toast uses React context (ToastProvider + useToast) for global access without prop drilling
+  - All setTimeout IDs tracked in Map ref and cleaned up on unmount (AP-009 anti-pattern enforcement)
+  - ExplorerLink uses Lora Explorer for both testnet and localnet URLs
+  - NetworkBadge reads VITE_NETWORK directly via getNetwork() — no prop needed
+  - Toast positioned fixed bottom-right with max-w-sm to avoid content overlap
+  - Loading states use spinner animation (border-based CSS spinner)
+- **Blockers Encountered**: None
+- **Completion Status**: DONE

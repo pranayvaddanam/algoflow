@@ -20,6 +20,7 @@ import { useContractState } from '../hooks/useContractState';
 import { useStreamAccrual } from '../hooks/useStreamAccrual';
 import { useAlgoFlowWallet } from '../hooks/useWallet';
 import { WalletConnect } from './WalletConnect';
+import { NetworkBadge } from './NetworkBadge';
 import { StreamCounter } from './StreamCounter';
 import { WithdrawButton } from './WithdrawButton';
 import { RateDisplay } from './RateDisplay';
@@ -101,7 +102,10 @@ export function EmployeeDashboard() {
             <a href="/" className="font-heading text-xl tracking-tight text-text-light hover:text-stream-green transition-colors">
               AlgoFlow
             </a>
-            <WalletConnect />
+            <div className="flex items-center gap-3">
+              <NetworkBadge />
+              <WalletConnect />
+            </div>
           </div>
         </header>
 
@@ -137,6 +141,7 @@ export function EmployeeDashboard() {
             AlgoFlow
           </a>
           <div className="flex items-center gap-4">
+            <NetworkBadge />
             {isGloballyPaused && (
               <span className="rounded-full bg-accent/20 px-3 py-1 text-xs font-medium text-accent">
                 PAUSED

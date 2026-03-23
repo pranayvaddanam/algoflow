@@ -57,3 +57,17 @@
 - [SUG-005] [2026-03-23 Wave 3] Add `resume_all` to EmergencyControls — currently only pause, no unpause UI.
 
 ---
+
+## Sprint 3 — Employee Dashboard, Landing Page, Shared UX & Demo Scripts
+
+### Anti-Patterns Discovered
+- [AP-010] [2026-03-24 Wave 1] Toast auto-dismiss timers MUST use ref-tracked timeouts with cleanup on unmount. Implemented via Map<id, timerId> in ToastProvider. Enforces AP-009 pattern.
+
+### Limitations Encountered
+- [LIM-010] [2026-03-24 Wave 1] RoleSelector wallet-gate uses scroll-to-element as fallback since there is no programmatic wallet connect trigger. The wallet connect flow is user-initiated (clicking Connect Wallet button).
+
+### Suggestions
+- [SUG-006] [2026-03-24 Wave 1] Add Silk.tsx 3D background to Landing page in Sprint 4 (placeholder noted in STORY-3-003 AC).
+- [SUG-007] [2026-03-24 Wave 1] Integrate useToast into WithdrawButton, FundForm, RegisterForm for automatic success/error toasts on all transactions in Sprint 4 polish.
+
+---
