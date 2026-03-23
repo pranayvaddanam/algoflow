@@ -9,8 +9,9 @@
 /**
  * Employee state — mirrors the per-account local state on-chain.
  *
- * All monetary values are in display units (already converted from base units).
- * Timestamps are Unix epoch seconds.
+ * Monetary values (salaryRate, totalWithdrawn) are in BASE UNITS (token × 10^6).
+ * Timestamps (streamStart, lastWithdrawal) are Unix epoch seconds.
+ * Display formatting happens at render time using formatTokenAmount().
  */
 export interface Employee {
   /** Algorand address (58-character base32 string). */

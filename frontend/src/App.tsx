@@ -32,7 +32,7 @@ function Landing() {
       {isConnected && (
         <div className="mt-8 flex gap-4">
           <a
-            href={isEmployer ? '/employer' : '/employer'}
+            href={isEmployer ? '/employer' : '/employee'}
             className="px-6 py-3 rounded-lg bg-primary text-text-light font-medium hover:bg-primary-dark transition-colors"
           >
             Employer Dashboard
