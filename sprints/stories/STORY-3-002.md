@@ -55,11 +55,23 @@ L (Large)
 - `frontend/src/hooks/usePayrollContract.ts` (withdraw method)
 
 ## Dev Agent Record
-<!-- Filled by implementing agent during /maestro-execute -->
-- **Agent ID**:
-- **Files Created**:
-- **Files Modified**:
-- **Tests Written**:
+- **Agent ID**: claude-opus-4-6-sprint3
+- **Files Created**: `frontend/src/components/EmployeeDashboard.tsx`, `frontend/src/components/WithdrawButton.tsx`, `frontend/src/components/TransactionHistory.tsx`, `frontend/src/components/RateDisplay.tsx`
+- **Files Modified**: `frontend/src/App.tsx` (replaced employee placeholder with EmployeeDashboard)
+- **Tests Written**: TypeScript type-check (tsc -b) pass, production build (vite build) pass
 - **Decisions Made**:
-- **Blockers Encountered**:
-- **Completion Status**:
+  - EmployeeDashboard: centered single-column layout focused on StreamCounter hero element
+  - WithdrawButton: multi-state machine (idle -> confirming -> signing -> success/error) with auto-dismiss
+  - WithdrawButton: confirmation dialog before signing to prevent accidental withdrawals
+  - Min withdrawal threshold: 1000 base units (0.001 PAYUSD) enforced on button disabled state
+  - TransactionHistory: queries Indexer with notePrefix("algoflow:") and applicationID filter
+  - TransactionHistory: graceful fallback when Indexer is unavailable (common on LocalNet)
+  - RateDisplay: multi-unit conversion (hr, day=*24, week=*168, month=*720) with 2 decimal places
+  - RateDisplay: "New" badge using localStorage comparison for rate-change detection
+  - StatusBadge: reused existing Sprint 2 component (no recreation)
+  - Explorer links: Lora AlgoKit Explorer (testnet/localnet detection via getNetwork())
+  - Not-registered state: shows truncated address with instruction to contact employer
+  - Lifetime stats row: shows total withdrawn and currently accrued side by side
+  - algosdk v3: used camelCase property access (innerTxns, roundTime, assetTransferTransaction)
+- **Blockers Encountered**: algosdk v3 types use camelCase not kebab-case -- fixed property access
+- **Completion Status**: DONE -- all ACs implemented across 4 sections (wallet, withdraw, history, rate)

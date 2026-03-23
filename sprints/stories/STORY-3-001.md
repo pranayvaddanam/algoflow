@@ -34,11 +34,17 @@ L (Large)
 - `frontend/src/hooks/usePayrollContract.ts` (getAccrued method)
 
 ## Dev Agent Record
-<!-- Filled by implementing agent during /maestro-execute -->
-- **Agent ID**:
-- **Files Created**:
-- **Files Modified**:
-- **Tests Written**:
+- **Agent ID**: claude-opus-4-6-sprint3
+- **Files Created**: `frontend/src/hooks/useStreamAccrual.ts`, `frontend/src/components/StreamCounter.tsx`
+- **Files Modified**: `frontend/src/App.tsx` (added EmployeeDashboard import)
+- **Tests Written**: TypeScript type-check (tsc -b) pass, production build (vite build) pass
 - **Decisions Made**:
-- **Blockers Encountered**:
-- **Completion Status**:
+  - Used `setInterval(1000)` for 1-second tick (simpler than rAF, sufficient for per-second updates)
+  - 30-second resync interval calls `getAccrued()` on-chain to prevent drift
+  - `resetAccrual()` callback exposed for post-withdrawal counter reset
+  - Client-side calculation uses `Math.floor(rate * elapsed / 3600)` matching contract integer division
+  - StreamCounter uses CSS `text-shadow` with stream-green for glow effect; `animate-pulse` on indicator dot
+  - Pause overlay distinguishes individual pause (amber) from global pause (accent/red)
+  - `formatAccrued` adds thousand separators to the integer part for readability
+- **Blockers Encountered**: None
+- **Completion Status**: DONE -- all 6 ACs implemented

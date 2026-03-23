@@ -160,7 +160,8 @@ sprints:
 
   sprint-3:
     name: "Employee Dashboard, Landing Page, Shared UX & Demo Scripts"
-    status: "backlog"
+    status: "in_progress"
+    started_at: "2026-03-24T01:00:00Z"
     goal: "Build employee dashboard with streaming counter, landing page, shared UX, demo scripts"
     estimated_hours: 8-10
     depends_on: ["sprint-2"]

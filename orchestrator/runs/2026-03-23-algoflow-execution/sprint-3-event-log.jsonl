@@ -1,0 +1,3 @@
+{"ts":"2026-03-24T01:00:00Z","event":"sprint_started","sprint":3,"stories":5,"complexity":"MEDIUM"}
+{"ts":"2026-03-24T01:00:05Z","event":"wave_started","wave":1,"agents":["sprint3-employee"],"parallel":false,"write_targets":{"sprint3-employee":["frontend/src/components/StreamCounter.tsx","frontend/src/components/EmployeeDashboard.tsx","frontend/src/components/WithdrawButton.tsx","frontend/src/components/TransactionHistory.tsx","frontend/src/components/RateDisplay.tsx","frontend/src/hooks/useStreamAccrual.ts"]}}
+{"ts":"2026-03-24T01:00:10Z","event":"agent_spawned","agent":"sprint3-employee","wave":1,"stories":["STORY-3-001","STORY-3-002"],"isolation":"main"}
