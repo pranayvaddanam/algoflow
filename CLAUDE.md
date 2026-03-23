@@ -265,7 +265,8 @@ These MUST be observed during execution:
 3. **Employee ASA opt-in**: Contract cannot enforce this. Frontend must verify before registration. Demo script pre-opts-in test employees.
 4. **Inner transaction fees**: Methods with inner txns need `fee = 2 * min_fee` on outer call, or include fee-funding PaymentTxn in atomic group.
 5. **Paused employee rate update**: Contract rejects `update_rate()` on paused employees (assert is_active == 1). `resume_stream()` resets `last_withdrawal` to now, preventing paused-period accrual. Both are tested.
-6. **Minimum withdrawal**: 0.001 PAYUSD (1000 base units). Contract should reject withdrawals below this threshold.
+6. **Minimum withdrawal**: 0.001 PAYUSD (1000 base units). Contract rejects withdrawals below this threshold (implemented).
+7. **Testnet deployment cost**: Full deployment requires ~5 ALGO (contract MBR 0.464 ALGO + inner txn fees + employee opt-in MBR). Fund deployer with 10 ALGO from testnet faucet (https://bank.testnet.algorand.network/).
 
 ## Maestro Orchestration
 
@@ -314,26 +315,27 @@ These conventions are MANDATORY for all code. Every AI agent and developer MUST 
 
 ALL smart contracts MUST use Algorand Python (`algopy`). Zero tolerance for PyTeal or raw TEAL.
 
-**Contract structure:**
+**Contract structure (PuyaPy 5.x — state declared in `__init__`):**
 ```python
 from algopy import ARC4Contract, arc4, Asset, Account, Global, Txn
-from algopy import UInt64, gtxn, itxn, LocalState, GlobalState
+from algopy import UInt64, gtxn, itxn, LocalState, GlobalState, subroutine, op
 
 class PayrollStream(ARC4Contract):
     """Contract docstring describing purpose."""
 
-    # 1. Global state declarations
-    employer: Account
-    salary_asset: Asset
+    def __init__(self) -> None:
+        # 1. Global state declarations (PuyaPy 5.x requires __init__)
+        self.employer = GlobalState(Account)
+        self.salary_asset = GlobalState(Asset)
 
-    # 2. Local state declarations
-    salary_rate: LocalState[UInt64]
+        # 2. Local state declarations
+        self.salary_rate = LocalState(UInt64, key="salary_rate")
 
     # 3. Create method (constructor)
     @arc4.abimethod(create="require")
     def create(self, asset: Asset) -> None:
-        self.employer = Txn.sender
-        self.salary_asset = asset
+        self.employer.value = Txn.sender
+        self.salary_asset.value = asset
 
     # 4. Public ABI methods
     @arc4.abimethod

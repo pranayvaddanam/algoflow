@@ -302,12 +302,13 @@ def fund_contract_payusd(algorand: AlgorandClient, deployer, app_client, asset_i
     print(f"    Sent {display_amount:,.6f} PAYUSD to contract")
 
 
-def update_env_file(app_id: int, asset_id: int) -> None:
-    """Write APP_ID and ASSET_ID to the .env file.
+def update_env_file(app_id: int, asset_id: int, network: str = "localnet") -> None:
+    """Write APP_ID, ASSET_ID, and network-specific VITE vars to .env file.
 
     Args:
         app_id: The deployed application ID.
         asset_id: The created ASA ID.
+        network: Target network ('localnet' or 'testnet').
     """
     print("\n[7/8] Updating .env file...")
 
@@ -340,8 +341,31 @@ def update_env_file(app_id: int, asset_id: int) -> None:
     else:
         content += f"\nVITE_ASSET_ID={asset_id}\n"
 
+    # Update network-specific VITE vars
+    network_configs = {
+        "localnet": {
+            "VITE_ALGOD_SERVER": "http://localhost:4001",
+            "VITE_ALGOD_TOKEN": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+            "VITE_INDEXER_SERVER": "http://localhost:8980",
+            "VITE_INDEXER_TOKEN": "",
+            "VITE_NETWORK": "localnet",
+        },
+        "testnet": {
+            "VITE_ALGOD_SERVER": "https://testnet-api.algonode.cloud",
+            "VITE_ALGOD_TOKEN": "",
+            "VITE_INDEXER_SERVER": "https://testnet-idx.algonode.cloud",
+            "VITE_INDEXER_TOKEN": "",
+            "VITE_NETWORK": "testnet",
+        },
+    }
+    for key, value in network_configs.get(network, {}).items():
+        if re.search(rf"^{key}=", content, re.MULTILINE):
+            content = re.sub(rf"^{key}=.*$", f"{key}={value}", content, flags=re.MULTILINE)
+        else:
+            content += f"\n{key}={value}\n"
+
     env_path.write_text(content)
-    print(f"    .env updated: APP_ID={app_id}, ASSET_ID={asset_id}")
+    print(f"    .env updated: APP_ID={app_id}, ASSET_ID={asset_id}, VITE_NETWORK={network}")
 
 
 def print_summary(app_id: int, asset_id: int, contract_address: str) -> None:
@@ -415,7 +439,7 @@ def main() -> None:
     fund_contract_payusd(algorand, deployer, app_client, asset_id)
 
     # Step 9: Write to .env
-    update_env_file(app_client.app_id, asset_id)
+    update_env_file(app_client.app_id, asset_id, network)
 
     # Step 10: Summary
     print_summary(app_client.app_id, asset_id, app_client.app_address)

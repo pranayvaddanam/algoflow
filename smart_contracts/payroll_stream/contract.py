@@ -223,26 +223,44 @@ class PayrollStream(ARC4Contract):
         """Settle accrued salary for an employee via inner AssetTransfer.
 
         Used by update_rate, pause_stream, and remove_employee to pay out
-        what's owed before modifying the employee's state.
+        what's owed before modifying the employee's state. Includes overdraft
+        protection: if the contract balance is insufficient, sends what's
+        available and auto-pauses the employee's stream.
 
         Args:
             employee: The employee account.
 
         Returns:
-            The amount settled (0 if nothing accrued).
+            The amount actually sent (may be less than accrued if overdraft).
         """
         accrued = self._calculate_accrued(employee)
         if accrued > 0:
-            itxn.AssetTransfer(
-                xfer_asset=self.salary_asset.value,
-                asset_receiver=employee,
-                asset_amount=accrued,
-                fee=0,
-            ).submit()
-            self.total_withdrawn[employee] += accrued
-            self.total_streamed.value += accrued
+            # Overdraft protection: check contract balance
+            balance, _exists = op.AssetHoldingGet.asset_balance(
+                Global.current_application_address, self.salary_asset.value
+            )
+
+            sent: UInt64
+            if balance >= accrued:
+                sent = accrued
+            else:
+                # Partial settlement — send available balance, auto-pause
+                sent = balance
+                self.is_active[employee] = UInt64(0)
+
+            if sent > 0:
+                itxn.AssetTransfer(
+                    xfer_asset=self.salary_asset.value,
+                    asset_receiver=employee,
+                    asset_amount=sent,
+                    fee=0,
+                ).submit()
+                self.total_withdrawn[employee] += sent
+                self.total_streamed.value += sent
+        else:
+            sent = UInt64(0)
         self.last_withdrawal[employee] = Global.latest_timestamp
-        return accrued
+        return sent
 
     # ------------------------------------------------------------------ #
     #  STORY-1-004: Management Methods (5 methods + pause_all)
