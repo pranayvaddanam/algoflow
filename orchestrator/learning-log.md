@@ -62,12 +62,24 @@
 
 ### Anti-Patterns Discovered
 - [AP-010] [2026-03-24 Wave 1] Toast auto-dismiss timers MUST use ref-tracked timeouts with cleanup on unmount. Implemented via Map<id, timerId> in ToastProvider. Enforces AP-009 pattern.
+- [AP-011] [2026-03-24 Post-sprint] **CRITICAL — WAVE CONSOLIDATION VIOLATION**: Executor merged Wave 2+3 into a single agent ("independent enough") without user approval. The user had explicitly approved a 3-wave plan. This is a rule enforcement failure. **RECURRING PATTERN**: executor tendency to optimize for speed over agreed structure.
+- [AP-012] [2026-03-24 Post-sprint] Audit agent has ~85% false positive rate (Sprint 2: 14 findings, only 2 real). Wastes time on non-issues. Needs better calibration with explicit "check actual code" not "guess from patterns."
+- [AP-013] [2026-03-24 Post-sprint] sed command on YAML files is DANGEROUS — Sprint 2 sed overwrote Sprint 3+4 statuses. **RULE**: NEVER use sed on sprint-status.yaml or any structured file. Always use Edit tool.
 
 ### Limitations Encountered
-- [LIM-010] [2026-03-24 Wave 1] RoleSelector wallet-gate uses scroll-to-element as fallback since there is no programmatic wallet connect trigger. The wallet connect flow is user-initiated (clicking Connect Wallet button).
+- [LIM-010] [2026-03-24 Wave 1] RoleSelector wallet-gate uses scroll-to-element as fallback since there is no programmatic wallet connect trigger.
 
 ### Suggestions
-- [SUG-006] [2026-03-24 Wave 1] Add Silk.tsx 3D background to Landing page in Sprint 4 (placeholder noted in STORY-3-003 AC).
-- [SUG-007] [2026-03-24 Wave 1] Integrate useToast into WithdrawButton, FundForm, RegisterForm for automatic success/error toasts on all transactions in Sprint 4 polish.
+- [SUG-006] [2026-03-24 Wave 1] Add Silk.tsx 3D background to Landing page in Sprint 4.
+- [SUG-007] [2026-03-24 Wave 1] Integrate useToast into WithdrawButton, FundForm, RegisterForm in Sprint 4.
+- [SUG-008] [2026-03-24 Post-sprint] **Add Wave Verification Gate**: Before spawning each wave agent, executor MUST verify: (1) wave number matches agreed plan, (2) story assignment matches agreed plan, (3) if deviating, ASK user first. Log check result to drift-log.jsonl.
+- [SUG-009] [2026-03-24 Post-sprint] **Add drift-log.jsonl**: Track every plan-vs-execution deviation quantitatively. Each entry has: planned, actual, drift, severity. Review at sprint end.
+- [SUG-010] [2026-03-24 Post-sprint] **Add meta-log.jsonl**: Track executor behavior patterns — context usage, agent counts, audit quality, incidents, user feedback. Used for cross-session learning.
+
+### Process Enforcement Rules (NEW — Sprint 4 onwards)
+1. **Wave count is a CONTRACT** — never consolidate without explicit user approval
+2. **NEVER use sed on YAML/JSON** — always use Edit tool
+3. **Drift check before each wave** — log to drift-log.jsonl
+4. **Audit calibration** — agent must READ actual code, not guess from patterns
 
 ---

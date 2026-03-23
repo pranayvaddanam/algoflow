@@ -249,6 +249,43 @@ frontend/src/
 
 ---
 
+## Section 5b: Drift Tracking & Process Enforcement (NEW)
+
+### Drift Log
+File: `orchestrator/runs/2026-03-23-algoflow-execution/drift-log.jsonl`
+- Tracks every plan-vs-execution deviation quantitatively
+- Fields: sprint, type, planned, actual, drift, severity, note
+- **Sprint 4 executor MUST append entries for every wave**
+
+### Meta Log
+File: `orchestrator/runs/2026-03-23-algoflow-execution/meta-log.jsonl`
+- Tracks executor behavior patterns across the session
+- Categories: session_start, sprint_complete, audit_requested, drift_violation, user_feedback
+- Used for cross-session learning
+
+### Wave Verification Gate (MANDATORY for Sprint 4)
+Before spawning EACH wave agent, the executor MUST:
+1. Confirm wave number matches the user-approved plan
+2. Confirm story assignment matches the plan
+3. Log the check to drift-log.jsonl: `{"type":"wave_verification","wave":N,"plan_match":true/false}`
+4. If plan_match is false → STOP. Ask user before proceeding.
+
+### Drift Summary (Session 1)
+| Sprint | Wave Drift | Severity | Detail |
+|--------|-----------|----------|--------|
+| 0 | 0 | NONE | 1/1 waves as planned |
+| 1 | 0 | NONE | 2/2 waves as planned |
+| 2 | 0 | NONE | 3/3 waves as planned |
+| 3 | -1 | **HIGH** | 3 planned → 2 executed (Wave 2+3 merged) |
+
+### Process Rules (Sprint 4 MUST enforce)
+1. Wave count is a CONTRACT — never consolidate without user approval
+2. NEVER use sed on YAML/JSON — always use Edit tool
+3. Drift check before each wave spawn
+4. Audit agents must READ actual code, not guess from patterns
+
+---
+
 ## Section 6: Anti-Patterns Registry (ENFORCE in Sprint 4)
 
 These MUST be included in every Sprint 4 agent prompt:
