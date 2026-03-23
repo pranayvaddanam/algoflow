@@ -38,3 +38,22 @@
 - [SUG-003] [2026-03-23 Wave 1] Add `resume_all()` method as inverse of `pause_all()`. Currently no on-chain way to un-pause.
 
 ---
+
+## Sprint 2 — Employer Dashboard
+
+### Anti-Patterns Discovered
+- [AP-006] [2026-03-23 Wave 2] App.tsx route ternary had both branches pointing to `/employer` — dead code bug. **RESOLVED**: Fixed in commit c09bd57.
+- [AP-007] [2026-03-23 Wave 2] Employee address tracking via localStorage — contract has no on-chain address list. If localStorage cleared, employee list empties. Demo-scope limitation (max 3). Production: use Indexer.
+- [AP-008] [2026-03-23 Wave 2] Batch registration executes sequentially, not atomically. Partial failure leaves some employees registered, others not.
+- [AP-009] [2026-03-23 Wave 3] setTimeout without cleanup in EmployerDashboard callbacks. Minor memory leak on unmount. Low priority.
+
+### Limitations Encountered
+- [LIM-007] [2026-03-23 Wave 1] algosdk v3 types differ significantly from v2 — `TealKeyValue.key` is `Uint8Array`, `TealValue.uint` is `bigint`, global state path is `.params.globalState`. Risk resolution doc had v2 patterns.
+- [LIM-008] [2026-03-23 Wave 1] ARC56 JSON must be copied into `src/lib/` because tsconfig `include: ["src"]` blocks imports from outside src directory.
+- [LIM-009] [2026-03-23 Wave 2] algosdk bundle is ~1MB. Chunk warning on build. Needs code-splitting in Sprint 4.
+
+### Suggestions
+- [SUG-004] [2026-03-23 Wave 2] Use Indexer queries to discover opted-in employees instead of localStorage tracking.
+- [SUG-005] [2026-03-23 Wave 3] Add `resume_all` to EmergencyControls — currently only pause, no unpause UI.
+
+---
