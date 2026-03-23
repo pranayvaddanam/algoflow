@@ -39,14 +39,63 @@ If this event is missing for any wave, the Sprint Completion Gate FAILS.
 
 ---
 
-## 1. Pre-Wave Verification Gate (BLOCKING)
+## 1. MANDATORY HARD GATES (System Will Not Proceed Without These)
 
-Before spawning EACH wave agent, the executor MUST execute this checklist.
-Skipping ANY item blocks agent spawn.
+The Maestro system has 5 hard gates. Each gate is a BLOCKING checkpoint.
+The executor CANNOT advance past a gate without completing ALL items.
+There are NO exceptions. There are NO "do it later" options.
+
+### Gate Map (execution order)
 
 ```
-PRE-WAVE GATE — Wave {M}, Sprint {N}
-=====================================
+SPRINT START
+    │
+    ▼
+[GATE A: Sprint Entry] ──── Must pass before ANY wave starts
+    │
+    ▼
+[GATE B: Pre-Wave] ──────── Must pass before EACH agent spawns
+    │
+    ▼
+  Agent runs...
+    │
+    ▼
+[GATE C: Post-Wave] ─────── Must pass after EACH wave completes
+    │
+    ▼
+  Next wave (repeat B→C) or...
+    │
+    ▼
+[GATE D: Sprint Exit] ───── Must pass before sprint marked "done"
+    │
+    ▼
+[GATE E: Health Verify] ──── Must pass before proceeding to next sprint
+```
+
+### GATE A: Sprint Entry Gate
+
+Before the first wave of any sprint, verify ALL:
+```
+GATE A — Sprint {N} Entry
+==========================
+A1. [ ] Enforcement protocol read (this file, fully)
+A2. [ ] Core values stated: "Process > Rules > Quality > Thoroughness > Speed"
+A3. [ ] Wave plan agreed with user (exact wave count + story assignments)
+A4. [ ] Sprint event log created (sprint_started event written)
+A5. [ ] Prior sprint drift score reviewed (if not Sprint 0)
+A6. [ ] All prior sprint stories verified "done" in sprint-status.yaml
+A7. [ ] Git working tree clean
+
+PASS: ALL 7 checked → proceed to Gate B for Wave 1
+FAIL: ANY unchecked → STOP. Do not start sprint.
+```
+
+### GATE B: Pre-Wave Gate
+
+Before spawning EACH wave agent:
+```
+GATE B — Wave {M}, Sprint {N}
+===============================
 1. [ ] Wave number matches user-approved plan
        Planned wave count for this sprint: ___
        Current wave number: ___
@@ -63,10 +112,71 @@ PRE-WAVE GATE — Wave {M}, Sprint {N}
        {"ts":"...","sprint":N,"type":"wave_verification","wave":M,
         "planned_stories":[...],"actual_stories":[...],"plan_match":true/false}
 
-4. [ ] Agent prompt saved to prompts/ directory
+B4. [ ] Agent prompt saved to prompts/ directory
+B5. [ ] values_reanchor event logged:
+        {"ts":"...","event":"values_reanchor","wave":M,"confirmed":true}
 
-VERDICT: ALL checked → spawn agent
-         ANY unchecked → STOP
+PASS: ALL 5 checked → spawn agent
+FAIL: ANY unchecked → STOP. Do not spawn.
+```
+
+### GATE C: Post-Wave Gate
+
+After EACH wave's agent(s) return and BEFORE proceeding to anything else:
+```
+GATE C — Wave {M}, Sprint {N}
+===============================
+C1. [ ] agent_completed event logged for EVERY agent in this wave
+C2. [ ] quality_check event logged (tsc, build, pytest results)
+C3. [ ] Wave checkpoint document written (50+ lines)
+C4. [ ] Health check run (8 points — Section 12) and logged
+C5. [ ] Mid-wave audit run (14 keywords — Section 7) if files were created
+C6. [ ] wave_completed event logged
+C7. [ ] Git commit created for this wave's changes
+C8. [ ] Anti-patterns from agent output extracted to learning-log.md
+
+PASS: ALL 8 checked → proceed to Gate B for next wave (or Gate D if last wave)
+FAIL: ANY unchecked → STOP. Complete the missing item before proceeding.
+```
+
+### GATE D: Sprint Exit Gate
+
+Before marking sprint as "done" in sprint-status.yaml:
+```
+GATE D — Sprint {N} Exit
+==========================
+D1. [ ] sprint_completed event logged to event log
+D2. [ ] ALL stories updated to "done" with timestamps in sprint-status.yaml
+D3. [ ] Dev Agent Records filled in ALL story files
+D4. [ ] Drift score computed and logged to drift-log.jsonl
+D5. [ ] Sprint trend data logged to meta-log.jsonl
+D6. [ ] Learning log updated with sprint section
+D7. [ ] Event log completeness check passed (Section 8 standard)
+D8. [ ] CLAUDE.md execution status updated
+D9. [ ] sprint-plan.md header updated
+
+PASS: ALL 9 checked → proceed to Gate E
+FAIL: ANY unchecked → STOP. Sprint is NOT done.
+```
+
+### GATE E: Health Verification Gate
+
+Final check before declaring sprint complete to user:
+```
+GATE E — Sprint {N} Health Verification
+=========================================
+E1. [ ] All backend tests still pass (pytest)
+E2. [ ] Frontend builds clean (tsc + build)
+E3. [ ] Git working tree clean
+E4. [ ] Sprint drift score < 30 (ACCEPTABLE)
+        IF score >= 30 → report to user, get acknowledgment before proceeding
+E5. [ ] Multi-perspective scores logged (structural, behavioral, temporal, forensic)
+E6. [ ] Health check scores for ALL waves were GREEN
+        IF any wave was AMBER → document what was fixed
+        IF any wave was RED → this gate FAILS
+
+PASS: ALL 6 checked → sprint is DONE. Report to user.
+FAIL: ANY unchecked → fix before declaring done.
 ```
 
 ---
