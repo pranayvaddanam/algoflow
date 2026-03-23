@@ -254,7 +254,7 @@ Required environment variables (see `.env.example`):
 | Readiness verdict | PASS (3/3 auditors) |
 | Session handoff | `orchestrator/runs/2026-03-23-algoflow-planning/SESSION-HANDOFF.md` |
 
-**Next step**: Run `/maestro-execute` in a new session.
+**Execution status**: Sprint 0 DONE, Sprint 1 DONE. Sprint 2 next.
 
 ## Implementation Warnings
 
@@ -264,7 +264,7 @@ These MUST be observed during execution:
 2. **MBR funding order**: Fund contract with ALGO → opt_in_asset() → fund with PAYUSD. Never call opt_in_asset before MBR funding.
 3. **Employee ASA opt-in**: Contract cannot enforce this. Frontend must verify before registration. Demo script pre-opts-in test employees.
 4. **Inner transaction fees**: Methods with inner txns need `fee = 2 * min_fee` on outer call, or include fee-funding PaymentTxn in atomic group.
-5. **Paused employee rate update**: If `update_rate()` called on paused employee, `resume_stream()` must reset `last_withdrawal` to now. Add explicit test.
+5. **Paused employee rate update**: Contract rejects `update_rate()` on paused employees (assert is_active == 1). `resume_stream()` resets `last_withdrawal` to now, preventing paused-period accrual. Both are tested.
 6. **Minimum withdrawal**: 0.001 PAYUSD (1000 base units). Contract should reject withdrawals below this threshold.
 
 ## Maestro Orchestration

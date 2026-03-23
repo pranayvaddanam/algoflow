@@ -40,55 +40,61 @@ sprints:
 
   sprint-1:
     name: "Smart Contract & Token Infrastructure"
-    status: "in_progress"
+    status: "done"
     goal: "Implement all 12 MVP contract methods, create PAYUSD token, deployment scripts, pytest suite"
     estimated_hours: 10-12
     depends_on: ["sprint-0"]
     started_at: "2026-03-23T09:50:00Z"
+    completed_at: "2026-03-23T10:23:00Z"
     stories:
       STORY-1-001:
         title: "PAYUSD token creation and clawback configuration"
-        status: "in_progress"
+        status: "done"
         complexity: "M"
         assigned_agent: "sprint1-scripts"
-        started_at: "2026-03-23T09:50:00Z"
-        completed_at: null
+        started_at: "2026-03-23T10:13:00Z"
+        completed_at: "2026-03-23T10:22:00Z"
+        verified_at: "2026-03-23T10:23:00Z"
         blockers: []
         frs: ["FR-TOKEN-001", "FR-TOKEN-002"]
       STORY-1-002:
         title: "Core contract: create, opt-in, fund, register"
-        status: "in_progress"
+        status: "done"
         complexity: "L"
         assigned_agent: "sprint1-contract"
-        started_at: "2026-03-23T09:50:00Z"
-        completed_at: null
+        started_at: "2026-03-23T09:51:00Z"
+        completed_at: "2026-03-23T10:10:00Z"
+        verified_at: "2026-03-23T10:10:30Z"
         blockers: []
         frs: ["FR-CONTRACT-001", "FR-CONTRACT-002", "FR-CONTRACT-003", "FR-CONTRACT-004", "FR-CONTRACT-013"]
       STORY-1-003:
         title: "Streaming engine: withdraw, get_accrued, overdraft protection"
-        status: "in_progress"
+        status: "done"
         complexity: "L"
         assigned_agent: "sprint1-contract"
-        started_at: "2026-03-23T09:50:00Z"
-        completed_at: null
+        started_at: "2026-03-23T09:51:00Z"
+        completed_at: "2026-03-23T10:10:00Z"
+        verified_at: "2026-03-23T10:10:30Z"
         blockers: []
         frs: ["FR-CONTRACT-005", "FR-CONTRACT-006", "FR-CONTRACT-014"]
       STORY-1-004:
         title: "Stream management: update_rate, pause, resume, remove, milestone_pay, pause_all"
-        status: "in_progress"
+        status: "done"
         complexity: "L"
         assigned_agent: "sprint1-contract"
-        started_at: "2026-03-23T09:50:00Z"
-        completed_at: null
+        started_at: "2026-03-23T09:51:00Z"
+        completed_at: "2026-03-23T10:10:00Z"
+        verified_at: "2026-03-23T10:10:30Z"
         blockers: []
         frs: ["FR-CONTRACT-007", "FR-CONTRACT-008", "FR-CONTRACT-009", "FR-CONTRACT-010", "FR-CONTRACT-011", "FR-CONTRACT-012"]
       STORY-1-005:
         title: "Employee opt-in flows and deployment scripts"
-        status: "in_progress"
+        status: "done"
         complexity: "M"
         assigned_agent: "sprint1-scripts"
-        started_at: "2026-03-23T09:50:00Z"
-        completed_at: null
+        started_at: "2026-03-23T10:13:00Z"
+        completed_at: "2026-03-23T10:22:00Z"
+        verified_at: "2026-03-23T10:23:00Z"
         blockers: []
         frs: ["FR-TOKEN-003", "FR-TOKEN-004", "FR-DEVOPS-001", "FR-DEVOPS-002"]
 
