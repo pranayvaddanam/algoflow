@@ -27,8 +27,8 @@
 
 ### Anti-Patterns Discovered
 - [AP-003] [2026-03-23 Wave 1] `remove_employee` zeroes local state instead of deleting. Cleared slots still consume MBR. Future: use `del self.field[account]` to free storage.
-- [AP-004] [2026-03-23 Wave 1] `_settle` subroutine has no overdraft protection — only `withdraw()` handles underfunded contracts. If `update_rate`/`pause_stream`/`remove_employee` are called when pool is empty, inner txn fails.
-- [AP-005] [2026-03-23 Wave 1] PuyaPy state proxy pattern differs from CLAUDE.md — class-level `GlobalState[T]` annotations don't compile in puyapy 5.x. Must use `__init__` with `GlobalState(type_or_value)`.
+- [AP-004] [2026-03-23 Wave 1] `_settle` subroutine had no overdraft protection. **RESOLVED**: Added balance check + auto-pause in commit 6a0fe0b.
+- [AP-005] [2026-03-23 Wave 1] PuyaPy state proxy pattern differs from CLAUDE.md. **RESOLVED**: CLAUDE.md updated to show `__init__` pattern in commit 6a0fe0b.
 
 ### Limitations Encountered
 - [LIM-005] [2026-03-23 Wave 1] LocalNet block timestamps have same-second granularity — `Global.latest_timestamp` can be identical for consecutive blocks. Tests need explicit `time.sleep(1)`.

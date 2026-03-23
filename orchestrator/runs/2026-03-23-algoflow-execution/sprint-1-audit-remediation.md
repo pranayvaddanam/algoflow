@@ -5,7 +5,7 @@
 **Raw Findings**: 19
 **False Positives**: 4 (corrected below)
 **Real Findings**: 15
-**Disposition**: 5 FIXED, 4 FIX-NOW, 6 DEFERRED
+**Disposition**: 13 FIXED, 1 NON-ISSUE, 1 DEFERRED (deploy error recovery → Sprint 4)
 
 ---
 
@@ -18,16 +18,16 @@
 | F-03 | MEDIUM | CLAUDE.md paused-employee warning stale | **FIXED** | This session |
 | F-04 | LOW | sprint-plan.md missing completion status | **FIXED** | This session |
 | F-05 | LOW | CLAUDE.md still says "Next step: /maestro-execute" | **FIXED** | This session |
-| F-06 | HIGH | Contract missing minimum withdrawal check | **FIX-NOW** | Before Sprint 2 |
-| F-07 | MEDIUM | Missing 5 edge case unit tests | **FIX-NOW** | Before Sprint 2 |
-| F-08 | LOW | constants.py missing MIN_WITHDRAWAL_AMOUNT | **FIX-NOW** | Before Sprint 2 |
-| F-09 | MEDIUM | _calculate_accrued integer division comment | **FIX-NOW** | Before Sprint 2 |
-| F-10 | HIGH | _settle() no overdraft protection | **DEFERRED** | Sprint 4, STORY-4-005 |
-| F-11 | HIGH | deploy.py no VITE_INDEXER for testnet | **DEFERRED** | Sprint 4, STORY-4-001 |
+| F-06 | HIGH | Contract missing minimum withdrawal check | **FIXED** | Commit ffbb878 |
+| F-07 | MEDIUM | Missing 5 edge case unit tests | **FIXED** | Commit ffbb878 |
+| F-08 | LOW | constants.py missing MIN_WITHDRAWAL_AMOUNT | **FIXED** | Commit ffbb878 |
+| F-09 | MEDIUM | _calculate_accrued integer division comment | **FIXED** | Commit ffbb878 |
+| F-10 | HIGH | _settle() no overdraft protection | **FIXED** | Commit 6a0fe0b |
+| F-11 | HIGH | deploy.py no VITE_INDEXER for testnet | **FIXED** | Commit 6a0fe0b |
 | F-12 | MEDIUM | deploy.py no error recovery / checkpointing | **DEFERRED** | Sprint 4, STORY-4-005 |
-| F-13 | MEDIUM | CLAUDE.md state declaration pattern stale | **DEFERRED** | Sprint 2, wave 1 |
-| F-14 | LOW | .env has stale APP_ID/ASSET_ID from old run | **DEFERRED** | Non-issue (gitignored) |
-| F-15 | INFO | Testnet MBR cost guidance missing | **DEFERRED** | Sprint 4, STORY-4-001 |
+| F-13 | MEDIUM | CLAUDE.md state declaration pattern stale | **FIXED** | Commit 6a0fe0b |
+| F-14 | LOW | .env has stale APP_ID/ASSET_ID from old run | **NON-ISSUE** | Gitignored, deploy overwrites |
+| F-15 | INFO | Testnet MBR cost guidance missing | **FIXED** | Commit 6a0fe0b |
 
 ### False Positives (NOT real issues)
 | Audit Claim | Why It's Wrong |
