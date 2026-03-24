@@ -227,9 +227,7 @@ export function WithdrawButton({
             {isDisabled && disabledReason ? (
               disabledReason
             ) : (
-              <>
-                Withdraw <span className="font-mono">{formattedAccrued}</span>
-              </>
+              'Withdraw'
             )}
           </button>
 

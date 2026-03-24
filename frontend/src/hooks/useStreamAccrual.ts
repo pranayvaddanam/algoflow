@@ -16,6 +16,7 @@ import { useState, useEffect, useRef, useCallback } from 'react';
 
 import { usePayrollContract } from './usePayrollContract';
 import { ASSET_DECIMALS } from '../lib/constants';
+import { getTotalBonuses } from '../lib/bonusTracker';
 
 /** Interval for re-syncing with on-chain accrual (60 seconds). */
 const RESYNC_INTERVAL_MS = 60_000;
@@ -116,6 +117,9 @@ export function useStreamAccrual({
   const salaryRateRef = useRef(salaryRate);
   const isStreamingRef = useRef(isStreaming);
   const accruedRef = useRef(accrued);
+
+  // Bonus offset: bonuses paid to this employee (tracked in localStorage)
+  const bonusRef = useRef(employeeAddress ? getTotalBonuses(employeeAddress) : 0);
 
   // For smooth interpolation: the wall-clock offset at RAF start
   // performance.now() gives ms since page load; we anchor it to the lastWithdrawal timestamp
@@ -244,9 +248,14 @@ export function useStreamAccrual({
       const value = calculateAccruedSmooth();
       accruedRef.current = value;
 
-      // Direct DOM update — no React re-render, true 60fps
+      // Re-read bonus total every 2 seconds (cheap localStorage read)
+      if (timestamp - lastStateSync > 2000) {
+        bonusRef.current = employeeAddress ? getTotalBonuses(employeeAddress) : 0;
+      }
+
+      // Direct DOM update — include bonuses for total display
       if (displayRef.current) {
-        displayRef.current.textContent = formatAccrued(value);
+        displayRef.current.textContent = formatAccrued(value + bonusRef.current);
       }
 
       // Sync to React state every 2 seconds (for WithdrawButton, stats cards)
