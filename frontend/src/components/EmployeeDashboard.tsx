@@ -352,22 +352,14 @@ export function EmployeeDashboard() {
           />
         </div>
 
-        {/* Lifetime stats mini row */}
-        <div className="grid grid-cols-2 gap-4 mb-4">
+        {/* Lifetime stats */}
+        <div className="mb-4">
           <div className="glass rounded-xl p-4 text-center">
             <p className="text-xs text-text-light/40 uppercase tracking-wider mb-1">
               Total Withdrawn
             </p>
             <p className="font-mono text-lg text-text-light">
               ${formatTokenAmount(totalWithdrawn)}
-            </p>
-          </div>
-          <div className="glass rounded-xl p-4 text-center">
-            <p className="text-xs text-text-light/40 uppercase tracking-wider mb-1">
-              Salary Rate
-            </p>
-            <p className="font-mono text-lg text-stream-green">
-              ${formatTokenAmount(salaryRate)}/hr
             </p>
           </div>
         </div>
