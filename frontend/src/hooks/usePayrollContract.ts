@@ -193,12 +193,11 @@ export function usePayrollContract() {
       const atc = new algosdk.AtomicTransactionComposer();
       const method = contract.getMethodByName('get_accrued');
 
-      // Use the connected address if available, otherwise use the employee address
-      // as the sender (simulate does not require signing)
-      const sender = activeAddress ?? employeeAddress;
-      const signer = activeAddress
-        ? transactionSigner
-        : algosdk.makeEmptyTransactionSigner();
+      // Always use simulate for readonly calls — never touch the wallet signer.
+      // This prevents getAccrued from competing with withdraw/other txns for
+      // the KMD wallet connection.
+      const sender = employeeAddress;
+      const signer = algosdk.makeEmptyTransactionSigner();
 
       atc.addMethodCall({
         appID: appId,
@@ -209,22 +208,17 @@ export function usePayrollContract() {
         methodArgs: [employeeAddress],
       });
 
-      // Use simulate for read-only call when no wallet is connected
-      if (!activeAddress) {
-        const simResult = await atc.simulate(algodClient, new algosdk.modelsv2.SimulateRequest({
-          txnGroups: [],
-          allowEmptySignatures: true,
-        }));
-        const methodResult = simResult.methodResults[0];
-        const returnValue = methodResult?.returnValue;
-        return {
-          txIDs: methodResult?.txID ? [methodResult.txID] : [],
-          confirmedRound: 0n,
-          returnValue: returnValue !== undefined ? Number(returnValue) : undefined,
-        };
-      }
-
-      return executeAtc(atc);
+      const simResult = await atc.simulate(algodClient, new algosdk.modelsv2.SimulateRequest({
+        txnGroups: [],
+        allowEmptySignatures: true,
+      }));
+      const methodResult = simResult.methodResults[0];
+      const returnValue = methodResult?.returnValue;
+      return {
+        txIDs: methodResult?.txID ? [methodResult.txID] : [],
+        confirmedRound: 0n,
+        returnValue: returnValue !== undefined ? Number(returnValue) : undefined,
+      };
     },
     [activeAddress, appId, algodClient, transactionSigner, getSuggestedParams, executeAtc],
   );
