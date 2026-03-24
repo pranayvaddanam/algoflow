@@ -1,3 +1,6 @@
+/* Google Fonts — Geist (body) and Fraunces (headings) */
+@import url('https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,100..900;1,9..144,100..900&display=swap');
+
 @import "tailwindcss";
 
 /*
@@ -107,4 +110,39 @@ code, pre, kbd, samp {
 
 .animate-slide-in-right {
   animation: slide-in-right 0.3s ease-out;
+}
+
+/* ------------------------------------------------------------------ */
+/*  Emergency Controls confirmation animations                         */
+/* ------------------------------------------------------------------ */
+
+@keyframes fadeInDanger {
+  from {
+    background-color: transparent;
+    border-color: rgba(255, 255, 255, 0.1);
+  }
+  to {
+    background-color: rgba(242, 95, 108, 0.08);
+    border-color: rgba(242, 95, 108, 0.4);
+  }
+}
+
+@keyframes fadeInSafe {
+  from {
+    background-color: transparent;
+    border-color: rgba(255, 255, 255, 0.1);
+  }
+  to {
+    background-color: rgba(93, 202, 165, 0.08);
+    border-color: rgba(93, 202, 165, 0.4);
+  }
+}
+
+/* ------------------------------------------------------------------ */
+/*  Active status pulse animation (Emergency Controls)                 */
+/* ------------------------------------------------------------------ */
+
+@keyframes activePulse {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(93, 202, 165, 0.4); }
+  50% { box-shadow: 0 0 0 6px rgba(93, 202, 165, 0); }
 }

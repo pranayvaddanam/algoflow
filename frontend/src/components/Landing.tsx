@@ -9,39 +9,21 @@
  *   - Footer: attribution
  */
 
-import { useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
-
 import { useAlgoFlowWallet } from '../hooks/useWallet';
-import { useContractState } from '../hooks/useContractState';
 import { WalletConnect } from './WalletConnect';
 import { NetworkBadge } from './NetworkBadge';
 import { HowItWorks } from './HowItWorks';
 import { RoleSelector } from './RoleSelector';
+import { ShinyText } from './ShinyText';
 
 /**
- * Landing page component with auto-routing based on wallet address.
+ * Landing page component.
  *
- * When a wallet connects and the address matches the contract employer,
- * the user is automatically routed to /employer. Otherwise they can
- * choose their role manually via the RoleSelector cards.
+ * Always accessible regardless of wallet state. Users choose their
+ * role via the RoleSelector cards — no auto-redirect.
  */
 export function Landing() {
-  const { isConnected, activeAddress } = useAlgoFlowWallet();
-  const { contractState } = useContractState();
-  const navigate = useNavigate();
-
-  // Auto-route: if connected and employer, redirect to /employer
-  useEffect(() => {
-    if (
-      isConnected &&
-      contractState !== null &&
-      activeAddress !== null &&
-      activeAddress === contractState.employer
-    ) {
-      navigate('/employer');
-    }
-  }, [isConnected, contractState, activeAddress, navigate]);
+  const { isConnected } = useAlgoFlowWallet();
 
   return (
     <div className="min-h-screen flex flex-col text-text-light">
@@ -63,7 +45,7 @@ export function Landing() {
         {/* Hero */}
         <section className="text-center max-w-2xl">
           <h2 className="font-heading text-5xl sm:text-6xl tracking-tight mb-4">
-            AlgoFlow
+            <ShinyText speed={6}>AlgoFlow</ShinyText>
           </h2>
           <p className="text-lg sm:text-xl text-text-light/70 leading-relaxed">
             Real-time payroll streaming on Algorand. Continuous salary accrual

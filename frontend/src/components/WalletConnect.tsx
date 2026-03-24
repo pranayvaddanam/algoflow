@@ -100,7 +100,7 @@ export function WalletConnect() {
           onClick={() => void handleDisconnect()}
           className="text-sm text-text-light/50 hover:text-accent transition-colors"
         >
-          Disconnect
+          Logout
         </button>
       </div>
     );

@@ -7,6 +7,7 @@
  */
 
 import { useState, useCallback } from 'react';
+import algosdk from 'algosdk';
 
 import { usePayrollContract } from '../hooks/usePayrollContract';
 import { cn } from '../lib/utils';
@@ -33,14 +34,14 @@ type FormStatus = 'idle' | 'loading' | 'success' | 'error';
 
 const EMPTY_ENTRY: EmployeeEntry = { address: '', rate: '' };
 const ALGORAND_ADDRESS_LENGTH = 58;
-const MAX_BATCH_SIZE = 3;
+const MIN_BATCH_SIZE = 2;
+const MAX_BATCH_SIZE = 5;
 
 /**
- * Validate an Algorand address (basic client-side check).
- * Full checksum validation happens on-chain.
+ * Validate an Algorand address with full checksum verification.
  */
 function isValidAlgorandAddress(addr: string): boolean {
-  return addr.length === ALGORAND_ADDRESS_LENGTH && /^[A-Z2-7]+$/.test(addr);
+  return algosdk.isValidAddress(addr);
 }
 
 /**
@@ -55,18 +56,17 @@ function isValidAlgorandAddress(addr: string): boolean {
  */
 export function RegisterForm({
   onSuccess,
-  maxEmployees = 3,
+  maxEmployees = 10,
   currentEmployeeCount,
 }: RegisterFormProps) {
   const { registerEmployee } = usePayrollContract();
 
   const [mode, setMode] = useState<FormMode>('single');
   const [singleEntry, setSingleEntry] = useState<EmployeeEntry>({ ...EMPTY_ENTRY });
-  const [batchEntries, setBatchEntries] = useState<EmployeeEntry[]>([
-    { ...EMPTY_ENTRY },
-    { ...EMPTY_ENTRY },
-    { ...EMPTY_ENTRY },
-  ]);
+  const [batchSize, setBatchSize] = useState(MIN_BATCH_SIZE);
+  const [batchEntries, setBatchEntries] = useState<EmployeeEntry[]>(
+    Array.from({ length: MAX_BATCH_SIZE }, () => ({ ...EMPTY_ENTRY })),
+  );
   const [status, setStatus] = useState<FormStatus>('idle');
   const [message, setMessage] = useState('');
   const [validationErrors, setValidationErrors] = useState<Record<string, string>>({});
@@ -109,7 +109,7 @@ export function RegisterForm({
     if (mode === 'single') {
       entries = [singleEntry];
     } else {
-      entries = batchEntries.filter((entry) => entry.address.trim() || entry.rate.trim());
+      entries = batchEntries.slice(0, batchSize).filter((entry) => entry.address.trim() || entry.rate.trim());
     }
 
     if (entries.length === 0) {
@@ -176,7 +176,7 @@ export function RegisterForm({
 
       // Reset form
       setSingleEntry({ ...EMPTY_ENTRY });
-      setBatchEntries([{ ...EMPTY_ENTRY }, { ...EMPTY_ENTRY }, { ...EMPTY_ENTRY }]);
+      setBatchEntries(Array.from({ length: MAX_BATCH_SIZE }, () => ({ ...EMPTY_ENTRY })));
 
       onSuccess?.(registeredAddresses);
     } catch (err) {
@@ -356,11 +356,48 @@ export function RegisterForm({
         ) : (
           /* Batch registration mode */
           <div className="space-y-3">
+            {/* Batch size selector */}
+            <div className="flex items-center gap-3 mb-1">
+              <span className="text-xs text-text-light/50">Employees:</span>
+              <div className="flex items-center rounded-lg border border-white/10 bg-white/5">
+                <button
+                  type="button"
+                  onClick={() => setBatchSize((prev) => Math.max(MIN_BATCH_SIZE, prev - 1))}
+                  disabled={batchSize <= MIN_BATCH_SIZE || isLoading}
+                  className={cn(
+                    'px-2.5 py-1 text-sm font-medium transition-colors rounded-l-lg',
+                    batchSize <= MIN_BATCH_SIZE
+                      ? 'text-text-light/20 cursor-not-allowed'
+                      : 'text-text-light/70 hover:bg-white/10',
+                  )}
+                >
+                  -
+                </button>
+                <span className="px-3 py-1 text-sm font-mono text-text-light border-x border-white/10 min-w-[2rem] text-center">
+                  {batchSize}
+                </span>
+                <button
+                  type="button"
+                  onClick={() => setBatchSize((prev) => Math.min(MAX_BATCH_SIZE, prev + 1))}
+                  disabled={batchSize >= MAX_BATCH_SIZE || isLoading}
+                  className={cn(
+                    'px-2.5 py-1 text-sm font-medium transition-colors rounded-r-lg',
+                    batchSize >= MAX_BATCH_SIZE
+                      ? 'text-text-light/20 cursor-not-allowed'
+                      : 'text-text-light/70 hover:bg-white/10',
+                  )}
+                >
+                  +
+                </button>
+              </div>
+              <span className="text-xs text-text-light/30">({MIN_BATCH_SIZE}-{MAX_BATCH_SIZE})</span>
+            </div>
+
             <div className="flex gap-2 text-xs text-text-light/50 px-0.5">
               <span className="flex-1">Address</span>
               <span className="w-32">Rate ($/hr)</span>
             </div>
-            {batchEntries.slice(0, MAX_BATCH_SIZE).map((entry, index) => (
+            {batchEntries.slice(0, batchSize).map((entry, index) => (
               <div key={index} className="flex gap-2 items-start">
                 {renderAddressInput(
                   `batch-addr-${index}`,

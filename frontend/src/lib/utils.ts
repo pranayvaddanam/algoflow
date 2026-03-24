@@ -58,6 +58,43 @@ export function cn(...classes: (string | undefined | false)[]): string {
 }
 
 /**
+ * Format a Unix timestamp to a localized date/time string.
+ * Uses the browser's Intl.DateTimeFormat for automatic timezone detection.
+ *
+ * @param unixSeconds - Unix epoch seconds (from on-chain state)
+ * @returns Formatted string like "Mar 23, 2026 11:30 AM IST"
+ */
+export function formatTimestamp(unixSeconds: number): string {
+  if (unixSeconds === 0) return 'Never';
+  const date = new Date(unixSeconds * 1000);
+  return new Intl.DateTimeFormat(undefined, {
+    month: 'short',
+    day: 'numeric',
+    year: 'numeric',
+    hour: 'numeric',
+    minute: '2-digit',
+    timeZoneName: 'short',
+  }).format(date);
+}
+
+/**
+ * Format a Unix timestamp to a relative time string (e.g., "2 hours ago").
+ *
+ * @param unixSeconds - Unix epoch seconds (from on-chain state)
+ * @returns Relative time string like "5m ago", "2h ago", "3d ago"
+ */
+export function formatRelativeTime(unixSeconds: number): string {
+  if (unixSeconds === 0) return 'Never';
+  const now = Math.floor(Date.now() / 1000);
+  const diff = now - unixSeconds;
+
+  if (diff < 60) return 'Just now';
+  if (diff < 3600) return `${Math.floor(diff / 60)}m ago`;
+  if (diff < 86400) return `${Math.floor(diff / 3600)}h ago`;
+  return `${Math.floor(diff / 86400)}d ago`;
+}
+
+/**
  * Decode a Uint8Array key from on-chain state into a UTF-8 string.
  */
 function decodeKey(key: Uint8Array): string {
@@ -106,7 +143,12 @@ export function parseGlobalState(
       case 'employer':
         // Address stored as 32-byte public key in bytes value
         if (item.value.bytes.length > 0) {
-          employer = algosdk.encodeAddress(item.value.bytes);
+          try {
+            employer = algosdk.encodeAddress(item.value.bytes);
+          } catch (err) {
+            console.error('[parseGlobalState] Failed to decode employer address:', err,
+              'bytes length:', item.value.bytes.length, 'type:', item.value.type);
+          }
         }
         break;
       case 'salary_asset':

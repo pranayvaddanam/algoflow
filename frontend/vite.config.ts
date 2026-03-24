@@ -8,6 +8,8 @@ export default defineConfig({
     tailwindcss(),
     react(),
   ],
+  // Read .env from the project root (one level up from frontend/)
+  envDir: '..',
   resolve: {
     alias: {
       '@': '/src',

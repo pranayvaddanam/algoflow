@@ -11,6 +11,8 @@
 
 import { cn } from '../lib/utils';
 import { ASSET_DECIMALS } from '../lib/constants';
+import { ShinyText } from './ShinyText';
+import { SpotlightCard } from './SpotlightCard';
 
 interface StreamCounterProps {
   /** Current accrued amount in base units. */
@@ -57,23 +59,22 @@ export function StreamCounter({
   isGloballyPaused,
   ratePerSecond,
 }: StreamCounterProps) {
-  const showPausedOverlay = isPaused || isGloballyPaused;
-  const pauseLabel = isGloballyPaused ? 'PAUSED BY EMPLOYER' : 'PAUSED';
+  const showPausedBanner = isPaused || isGloballyPaused;
 
   return (
-    <div className="glass rounded-2xl p-8 relative overflow-hidden">
-      {/* Pause overlay */}
-      {showPausedOverlay && (
-        <div className="absolute inset-0 z-10 flex items-center justify-center bg-bg-dark/60 backdrop-blur-sm rounded-2xl">
+    <SpotlightCard className="p-8 relative overflow-hidden">
+      {/* Pause banner — not a full overlay, counter remains visible */}
+      {showPausedBanner && (
+        <div className="absolute top-3 left-1/2 -translate-x-1/2 z-10">
           <span
             className={cn(
-              'text-lg font-bold tracking-widest px-6 py-2 rounded-full',
+              'text-xs font-bold tracking-widest px-4 py-1.5 rounded-full',
               isGloballyPaused
-                ? 'bg-accent/20 text-accent'
-                : 'bg-amber-400/20 text-amber-400',
+                ? 'bg-accent/20 text-accent border border-accent/30'
+                : 'bg-amber-400/20 text-amber-400 border border-amber-400/30',
             )}
           >
-            {pauseLabel}
+            {isGloballyPaused ? 'WITHDRAWALS LOCKED' : 'PAUSED'}
           </span>
         </div>
       )}
@@ -91,8 +92,8 @@ export function StreamCounter({
                 : 'bg-text-light/20',
             )}
           />
-          <h2 className="font-heading text-lg text-text-light/70 tracking-tight">
-            Accrued Salary
+          <h2 className="font-heading text-lg tracking-tight">
+            <ShinyText speed={4}>Accrued Salary</ShinyText>
           </h2>
         </div>
 
@@ -101,7 +102,7 @@ export function StreamCounter({
           className={cn(
             'font-mono text-5xl md:text-6xl lg:text-7xl font-bold tracking-tight leading-none',
             'transition-all duration-300 ease-out',
-            showPausedOverlay ? 'opacity-40' : 'opacity-100',
+            showPausedBanner ? 'opacity-70' : 'opacity-100',
           )}
           style={{
             color: 'var(--color-stream-green)',
@@ -117,11 +118,15 @@ export function StreamCounter({
         <p className="mt-4 text-sm text-text-light/50 font-mono">
           {isStreaming ? (
             <>Earning {formatPerSecond(ratePerSecond)}/second</>
+          ) : isGloballyPaused ? (
+            <>Accruing &mdash; withdrawals locked by employer</>
+          ) : isPaused ? (
+            <>Stream paused</>
           ) : (
             <>Stream inactive</>
           )}
         </p>
       </div>
-    </div>
+    </SpotlightCard>
   );
 }

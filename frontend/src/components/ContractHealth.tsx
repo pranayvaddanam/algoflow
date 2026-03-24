@@ -13,6 +13,7 @@ import { useAlgoFlowWallet } from '../hooks/useWallet';
 import { getAppId, getApplicationAddress } from '../lib/algorand';
 import { formatTokenAmount, cn } from '../lib/utils';
 import { ASSET_DECIMALS } from '../lib/constants';
+import { SpotlightCard } from './SpotlightCard';
 
 import type { ContractState, Employee } from '../types';
 
@@ -87,8 +88,8 @@ export function ContractHealth({
   const activeCount = employees.filter((e) => e.isActive).length;
 
   return (
-    <div className="rounded-2xl border border-white/10 bg-white/5 backdrop-blur-[18px] p-6 shadow-lg">
-      <h2 className="font-['Fraunces_Variable'] text-xl font-semibold text-[--text-light] mb-4">
+    <SpotlightCard className="p-6">
+      <h2 className="font-heading text-xl font-semibold text-[--text-light] mb-4">
         Contract Health
       </h2>
 
@@ -111,7 +112,17 @@ export function ContractHealth({
       <div className="space-y-4">
         {/* PAYUSD Balance — large, prominent */}
         <div>
-          <span className="text-xs text-text-light/50 uppercase tracking-wider">PAYUSD Balance</span>
+          <span className="text-xs text-text-light/50 uppercase tracking-wider inline-flex items-center gap-1.5">
+            PAYUSD Balance
+            <span className="relative group cursor-help">
+              <svg className="h-3.5 w-3.5 text-text-light/30 hover:text-text-light/50 transition-colors" viewBox="0 0 20 20" fill="currentColor">
+                <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a.75.75 0 000 1.5h.253a.25.25 0 01.244.304l-.459 2.066A1.75 1.75 0 0010.747 15H11a.75.75 0 000-1.5h-.253a.25.25 0 01-.244-.304l.459-2.066A1.75 1.75 0 009.253 9H9z" clipRule="evenodd" />
+              </svg>
+              <span className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-2.5 py-1.5 rounded-lg bg-[--bg-dark] border border-white/15 text-[10px] text-text-light/70 whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none shadow-lg z-10">
+                Updates after withdrawals
+              </span>
+            </span>
+          </span>
           <p className="font-mono text-2xl font-bold text-text-light mt-1">
             {contractBalance !== null
               ? `$${Number(formatTokenAmount(contractBalance, ASSET_DECIMALS)).toLocaleString('en-US', { minimumFractionDigits: ASSET_DECIMALS, maximumFractionDigits: ASSET_DECIMALS })}`
@@ -236,6 +247,6 @@ export function ContractHealth({
           </div>
         ) : null}
       </div>
-    </div>
+    </SpotlightCard>
   );
 }

@@ -3,8 +3,11 @@
  *
  * Displays three glassmorphism cards with step numbers, icons, and
  * descriptions. Arrow connectors between steps. Uses CSS variables
- * for theming.
+ * for theming. Cards wrapped in SpotlightCard for mouse-following
+ * radial gradient effect.
  */
+
+import { SpotlightCard } from './SpotlightCard';
 
 const STEPS = [
   {
@@ -86,8 +89,8 @@ export function HowItWorks() {
       <div className="flex flex-col md:flex-row items-center md:items-stretch gap-4 md:gap-3">
         {STEPS.map((step, index) => (
           <div key={step.number} className="contents">
-            {/* Step card */}
-            <div className="glass rounded-2xl p-6 flex-1 flex flex-col items-center text-center min-w-0 max-w-xs">
+            {/* Step card — wrapped in SpotlightCard for mouse-following spotlight */}
+            <SpotlightCard className="p-6 flex-1 flex flex-col items-center text-center min-w-0 max-w-xs">
               {/* Step number */}
               <div className="w-10 h-10 rounded-full bg-primary/20 border border-primary/40 flex items-center justify-center mb-4">
                 <span className="text-primary font-mono text-sm font-bold">
@@ -109,7 +112,7 @@ export function HowItWorks() {
               <p className="text-sm text-text-light/60 leading-relaxed">
                 {step.description}
               </p>
-            </div>
+            </SpotlightCard>
 
             {/* Arrow (not after last step) */}
             {index < STEPS.length - 1 && <StepArrow />}

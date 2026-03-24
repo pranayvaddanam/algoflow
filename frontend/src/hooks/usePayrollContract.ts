@@ -109,7 +109,7 @@ export function usePayrollContract() {
       const atc = new algosdk.AtomicTransactionComposer();
       const method = contract.getMethodByName('fund');
 
-      // 1. Asset transfer to contract
+      // 1. Asset transfer to contract (passed as method arg, not separate txn)
       const axferTxn = algosdk.makeAssetTransferTxnWithSuggestedParamsFromObject({
         sender: activeAddress,
         receiver: appAddress,
@@ -118,16 +118,14 @@ export function usePayrollContract() {
         suggestedParams: sp,
       });
 
-      atc.addTransaction({ txn: axferTxn, signer: transactionSigner });
-
-      // 2. fund() method call
+      // 2. fund() method call — axfer transaction passed as the method argument
       atc.addMethodCall({
         appID: appId,
         method,
         sender: activeAddress,
         signer: transactionSigner,
         suggestedParams: sp,
-        methodArgs: [],
+        methodArgs: [{ txn: axferTxn, signer: transactionSigner }],
       });
 
       return executeAtc(atc);
@@ -179,10 +177,11 @@ export function usePayrollContract() {
       signer: transactionSigner,
       suggestedParams: sp,
       methodArgs: [],
+      appForeignAssets: [assetId],
     });
 
     return executeAtc(atc);
-  }, [activeAddress, appId, transactionSigner, getPooledFeeParams, executeAtc]);
+  }, [activeAddress, appId, assetId, transactionSigner, getPooledFeeParams, executeAtc]);
 
   /**
    * Read-only: get the accrued balance for an employee.
@@ -249,11 +248,13 @@ export function usePayrollContract() {
         signer: transactionSigner,
         suggestedParams: sp,
         methodArgs: [employeeAddress, BigInt(newRateInBaseUnits)],
+        appAccounts: [employeeAddress],
+        appForeignAssets: [assetId],
       });
 
       return executeAtc(atc);
     },
-    [activeAddress, appId, transactionSigner, getPooledFeeParams, executeAtc],
+    [activeAddress, appId, assetId, transactionSigner, getPooledFeeParams, executeAtc],
   );
 
   /**
@@ -275,11 +276,13 @@ export function usePayrollContract() {
         signer: transactionSigner,
         suggestedParams: sp,
         methodArgs: [employeeAddress],
+        appAccounts: [employeeAddress],
+        appForeignAssets: [assetId],
       });
 
       return executeAtc(atc);
     },
-    [activeAddress, appId, transactionSigner, getPooledFeeParams, executeAtc],
+    [activeAddress, appId, assetId, transactionSigner, getPooledFeeParams, executeAtc],
   );
 
   /**
@@ -301,6 +304,7 @@ export function usePayrollContract() {
         signer: transactionSigner,
         suggestedParams: sp,
         methodArgs: [employeeAddress],
+        appAccounts: [employeeAddress],
       });
 
       return executeAtc(atc);
@@ -327,6 +331,8 @@ export function usePayrollContract() {
         signer: transactionSigner,
         suggestedParams: sp,
         methodArgs: [employeeAddress],
+        appAccounts: [employeeAddress],
+        appForeignAssets: [assetId],
       });
 
       return executeAtc(atc);
@@ -353,11 +359,13 @@ export function usePayrollContract() {
         signer: transactionSigner,
         suggestedParams: sp,
         methodArgs: [employeeAddress, BigInt(amountInBaseUnits)],
+        appAccounts: [employeeAddress],
+        appForeignAssets: [assetId],
       });
 
       return executeAtc(atc);
     },
-    [activeAddress, appId, transactionSigner, getPooledFeeParams, executeAtc],
+    [activeAddress, appId, assetId, transactionSigner, getPooledFeeParams, executeAtc],
   );
 
   /**
@@ -383,6 +391,53 @@ export function usePayrollContract() {
     return executeAtc(atc);
   }, [activeAddress, appId, transactionSigner, getSuggestedParams, executeAtc]);
 
+  /**
+   * Resume all streams after an emergency pause.
+   * Employer-only. No inner transaction needed.
+   */
+  const resumeAll = useCallback(async (): Promise<MethodCallResult> => {
+    if (!activeAddress) throw new Error('Wallet not connected');
+
+    const sp = await getSuggestedParams();
+    const atc = new algosdk.AtomicTransactionComposer();
+    const method = contract.getMethodByName('resume_all');
+
+    atc.addMethodCall({
+      appID: appId,
+      method,
+      sender: activeAddress,
+      signer: transactionSigner,
+      suggestedParams: sp,
+      methodArgs: [],
+    });
+
+    return executeAtc(atc);
+  }, [activeAddress, appId, transactionSigner, getSuggestedParams, executeAtc]);
+
+  /**
+   * Drain all remaining PAYUSD from the contract back to the employer.
+   * Employer-only. Requires global pause. Uses inner transaction (fee pooling).
+   */
+  const drainFunds = useCallback(async (): Promise<MethodCallResult> => {
+    if (!activeAddress) throw new Error('Wallet not connected');
+
+    const sp = await getPooledFeeParams();
+    const atc = new algosdk.AtomicTransactionComposer();
+    const method = contract.getMethodByName('drain_funds');
+
+    atc.addMethodCall({
+      appID: appId,
+      method,
+      sender: activeAddress,
+      signer: transactionSigner,
+      suggestedParams: sp,
+      methodArgs: [],
+      appForeignAssets: [assetId],
+    });
+
+    return executeAtc(atc);
+  }, [activeAddress, appId, assetId, transactionSigner, getPooledFeeParams, executeAtc]);
+
   return {
     optInAsset,
     fund,
@@ -395,5 +450,7 @@ export function usePayrollContract() {
     removeEmployee,
     milestonePay,
     pauseAll,
+    resumeAll,
+    drainFunds,
   };
 }

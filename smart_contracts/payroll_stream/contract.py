@@ -385,3 +385,44 @@ class PayrollStream(ARC4Contract):
         assert Txn.sender == self.employer.value, "Only employer can pause all"
 
         self.is_paused.value = UInt64(1)
+
+    @arc4.abimethod
+    def resume_all(self) -> None:
+        """Resume all streams after an emergency pause.
+
+        Sets the global is_paused flag to 0. Withdraw() calls will be
+        accepted again. Individual employee states are NOT modified.
+        """
+        assert Txn.sender == self.employer.value, "Only employer can resume all"
+        assert self.is_paused.value == UInt64(1), "Contract is not paused"
+
+        self.is_paused.value = UInt64(0)
+
+    @arc4.abimethod
+    def drain_funds(self) -> UInt64:
+        """Withdraw remaining PAYUSD tokens back to the employer.
+
+        Emergency drain — returns all PAYUSD from the contract pool to
+        the employer. Can only be called when all streams are paused
+        (is_paused == 1) to prevent draining while employees have
+        active accruals.
+
+        Returns:
+            The amount of tokens drained.
+        """
+        assert Txn.sender == self.employer.value, "Only employer can drain funds"
+        assert self.is_paused.value == UInt64(1), "Must pause all streams first"
+
+        balance, _exists = op.AssetHoldingGet.asset_balance(
+            Global.current_application_address, self.salary_asset.value
+        )
+        assert balance > 0, "No funds to drain"
+
+        itxn.AssetTransfer(
+            xfer_asset=self.salary_asset.value,
+            asset_receiver=self.employer.value,
+            asset_amount=balance,
+            fee=0,
+        ).submit()
+
+        return balance

@@ -1,8 +1,12 @@
 /**
  * Real-time salary accrual hook — the heart of the streaming illusion.
  *
- * Calculates accrued salary client-side every second using the formula:
+ * Uses requestAnimationFrame for 60fps smooth counter updates instead of
+ * 1-second interval jumps. Calculates accrued salary client-side using:
  *   accrued = rate * elapsed_seconds / 3600
+ *
+ * Uses performance.now() for sub-millisecond precision, yielding a smoothly
+ * and constantly increasing counter value.
  *
  * Re-syncs with on-chain `get_accrued` every 30 seconds to prevent drift.
  * Resets on withdrawal confirmation.
@@ -11,7 +15,7 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 
 import { usePayrollContract } from './usePayrollContract';
-import { STREAM_UPDATE_INTERVAL_MS, ASSET_DECIMALS } from '../lib/constants';
+import { ASSET_DECIMALS } from '../lib/constants';
 
 /** Interval for re-syncing with on-chain accrual (30 seconds). */
 const RESYNC_INTERVAL_MS = 30_000;
@@ -34,7 +38,7 @@ interface StreamAccrualParams {
 }
 
 interface StreamAccrualResult {
-  /** Current accrued amount in base units (updates every second). */
+  /** Current accrued amount in base units (updates every frame at 60fps). */
   accrued: number;
 
   /** Formatted accrued string with dollar sign and 6 decimals (e.g., "$12,345.678901"). */
@@ -69,8 +73,11 @@ function formatAccrued(baseUnits: number, decimals: number = ASSET_DECIMALS): st
  * Hook providing real-time salary accrual with client-side ticking
  * and periodic on-chain resync.
  *
- * The counter calculates `rate * elapsed / 3600` every second for visual
- * effect. The actual on-chain calculation only happens on withdrawal.
+ * Uses requestAnimationFrame for 60fps smooth counter updates instead of
+ * a 1-second setInterval. performance.now() provides sub-millisecond
+ * precision so the counter smoothly and constantly increases rather than
+ * jumping every second.
+ *
  * Every 30 seconds, the hook calls `get_accrued` to resync the base value
  * and prevent accumulated drift.
  */
@@ -92,13 +99,18 @@ export function useStreamAccrual({
   // Rate per second in base units
   const ratePerSecond = salaryRate / 3600;
 
-  // Refs to avoid stale closures in intervals
-  const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  // Refs to avoid stale closures in RAF loop
+  const rafRef = useRef<number | null>(null);
   const resyncIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const lastWithdrawalRef = useRef(lastWithdrawal);
   const salaryRateRef = useRef(salaryRate);
   const isStreamingRef = useRef(isStreaming);
   const accruedRef = useRef(accrued);
+
+  // For smooth interpolation: the wall-clock offset at RAF start
+  // performance.now() gives ms since page load; we anchor it to the lastWithdrawal timestamp
+  const perfAnchorRef = useRef<number | null>(null);
+  const wallAnchorRef = useRef<number>(0);
 
   // Keep refs in sync
   lastWithdrawalRef.current = lastWithdrawal;
@@ -107,16 +119,27 @@ export function useStreamAccrual({
   accruedRef.current = accrued;
 
   /**
-   * Calculate accrual from the lastWithdrawal timestamp.
+   * Calculate accrued amount using fractional seconds from performance.now()
+   * for smooth sub-second interpolation.
    */
-  const calculateAccrued = useCallback((): number => {
+  const calculateAccruedSmooth = useCallback((): number => {
     if (!isStreamingRef.current || salaryRateRef.current === 0) {
       return accruedRef.current;
     }
 
-    const now = Math.floor(Date.now() / 1000);
-    const elapsed = Math.max(0, now - lastWithdrawalRef.current);
-    return Math.floor((salaryRateRef.current * elapsed) / 3600);
+    // Use performance.now() anchored to the wall-clock lastWithdrawal for precision
+    if (perfAnchorRef.current === null) {
+      // First call — anchor performance.now() to Date.now()
+      perfAnchorRef.current = performance.now();
+      wallAnchorRef.current = Date.now() / 1000;
+    }
+
+    const perfElapsed = (performance.now() - perfAnchorRef.current) / 1000;
+    const currentWallTime = wallAnchorRef.current + perfElapsed;
+    const elapsedFromLastWithdrawal = Math.max(0, currentWallTime - lastWithdrawalRef.current);
+
+    // Use fractional seconds for smooth interpolation
+    return (salaryRateRef.current * elapsedFromLastWithdrawal) / 3600;
   }, []);
 
   /**
@@ -125,6 +148,8 @@ export function useStreamAccrual({
   const resetAccrual = useCallback(() => {
     setAccrued(0);
     accruedRef.current = 0;
+    // Reset performance anchor so next frame recalculates cleanly
+    perfAnchorRef.current = null;
   }, []);
 
   /**
@@ -138,6 +163,9 @@ export function useStreamAccrual({
       if (result.returnValue !== undefined && result.returnValue >= 0) {
         setAccrued(result.returnValue);
         accruedRef.current = result.returnValue;
+        // Re-anchor performance timer on resync
+        perfAnchorRef.current = performance.now();
+        wallAnchorRef.current = Date.now() / 1000;
       }
     } catch {
       // Resync failed — continue with client-side calculation.
@@ -147,6 +175,9 @@ export function useStreamAccrual({
 
   // Initial sync: fetch on-chain accrual on mount or when address/rate changes
   useEffect(() => {
+    // Reset performance anchor when params change
+    perfAnchorRef.current = null;
+
     if (!employeeAddress || !isStreaming) {
       // If not streaming, calculate frozen accrual from timestamps
       if (salaryRate > 0 && lastWithdrawal > 0 && !isStreaming) {
@@ -176,37 +207,38 @@ export function useStreamAccrual({
     void resync();
   }, [employeeAddress, isStreaming, salaryRate, lastWithdrawal, getAccrued, resync]);
 
-  // Tick interval: update accrual every second
+  // RAF loop: update accrual every frame at 60fps for smooth counter
   useEffect(() => {
-    // Clear any existing interval
-    if (intervalRef.current !== null) {
-      clearInterval(intervalRef.current);
-      intervalRef.current = null;
+    // Cancel any existing RAF
+    if (rafRef.current !== null) {
+      cancelAnimationFrame(rafRef.current);
+      rafRef.current = null;
     }
 
     if (!isStreaming) {
       return;
     }
 
-    // Immediate tick
-    const computed = calculateAccrued();
-    setAccrued(computed);
-    accruedRef.current = computed;
+    // Reset performance anchor for clean start
+    perfAnchorRef.current = null;
 
-    // Start 1-second interval
-    intervalRef.current = setInterval(() => {
-      const value = calculateAccrued();
+    function tick() {
+      const value = calculateAccruedSmooth();
       setAccrued(value);
       accruedRef.current = value;
-    }, STREAM_UPDATE_INTERVAL_MS);
+      rafRef.current = requestAnimationFrame(tick);
+    }
+
+    // Start the RAF loop
+    rafRef.current = requestAnimationFrame(tick);
 
     return () => {
-      if (intervalRef.current !== null) {
-        clearInterval(intervalRef.current);
-        intervalRef.current = null;
+      if (rafRef.current !== null) {
+        cancelAnimationFrame(rafRef.current);
+        rafRef.current = null;
       }
     };
-  }, [isStreaming, calculateAccrued]);
+  }, [isStreaming, calculateAccruedSmooth]);
 
   // Resync interval: re-fetch from chain every 30 seconds
   useEffect(() => {

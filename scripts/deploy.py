@@ -368,13 +368,14 @@ def update_env_file(app_id: int, asset_id: int, network: str = "localnet") -> No
     print(f"    .env updated: APP_ID={app_id}, ASSET_ID={asset_id}, VITE_NETWORK={network}")
 
 
-def print_summary(app_id: int, asset_id: int, contract_address: str) -> None:
+def print_summary(app_id: int, asset_id: int, contract_address: str, deployer_address: str) -> None:
     """Print deployment summary.
 
     Args:
         app_id: The deployed application ID.
         asset_id: The created ASA ID.
         contract_address: The contract application address.
+        deployer_address: The deployer/employer address.
     """
     print("\n[8/8] Deployment complete!")
     print("=" * 60)
@@ -382,12 +383,21 @@ def print_summary(app_id: int, asset_id: int, contract_address: str) -> None:
     print("=" * 60)
     print(f"  App ID:           {app_id}")
     print(f"  Asset ID:         {asset_id}")
+    print(f"  Employer Address: {deployer_address}")
     print(f"  Contract Address: {contract_address}")
     print(f"  Token:            {SALARY_TOKEN_NAME} ({SALARY_TOKEN_UNIT_NAME})")
     print(f"  Decimals:         {SALARY_TOKEN_DECIMALS}")
     print(f"  Total Supply:     {SALARY_TOKEN_TOTAL_SUPPLY // 10**SALARY_TOKEN_DECIMALS:,} PAYUSD")
     print(f"  Contract Funded:  {CONTRACT_PAYUSD_FUND // 10**SALARY_TOKEN_DECIMALS:,} PAYUSD")
     print("=" * 60)
+    print()
+    print("  NOTE: The employer address stored in the contract is the")
+    print(f"  deployer address above. In the browser, KMD may connect a")
+    print(f"  different account by default. The frontend auto-switches to")
+    print(f"  the employer account if it's in the same KMD wallet.")
+    print(f"  If Access Denied appears, use the account selector to pick")
+    print(f"  the employer address manually.")
+    print()
 
 
 def main() -> None:
@@ -442,7 +452,7 @@ def main() -> None:
     update_env_file(app_client.app_id, asset_id, network)
 
     # Step 10: Summary
-    print_summary(app_client.app_id, asset_id, app_client.app_address)
+    print_summary(app_client.app_id, asset_id, app_client.app_address, deployer.address)
 
 
 if __name__ == "__main__":

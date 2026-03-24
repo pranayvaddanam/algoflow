@@ -10,7 +10,7 @@
 import { useState, useEffect, useCallback } from 'react';
 
 import { getIndexerClient, getAppId, getNetwork } from '../lib/algorand';
-import { formatTokenAmount } from '../lib/utils';
+import { formatTokenAmount, formatTimestamp, getExplorerUrl } from '../lib/utils';
 
 interface TransactionEntry {
   /** Transaction ID. */
@@ -32,32 +32,6 @@ interface TransactionHistoryProps {
 
   /** Trigger a refresh (increment to re-fetch). */
   refreshKey: number;
-}
-
-/**
- * Format a Unix timestamp to a localized date/time string.
- */
-function formatTimestamp(unixSeconds: number): string {
-  if (unixSeconds === 0) return '--';
-  try {
-    return new Intl.DateTimeFormat(undefined, {
-      dateStyle: 'medium',
-      timeStyle: 'short',
-    }).format(new Date(unixSeconds * 1000));
-  } catch {
-    return new Date(unixSeconds * 1000).toLocaleString();
-  }
-}
-
-/**
- * Get the explorer URL for a transaction ID.
- */
-function getExplorerUrl(txId: string): string {
-  const network = getNetwork();
-  if (network === 'testnet') {
-    return `https://lora.algokit.io/testnet/transaction/${txId}`;
-  }
-  return `https://lora.algokit.io/localnet/transaction/${txId}`;
 }
 
 /**
@@ -232,7 +206,7 @@ export function TransactionHistory({ employeeAddress, refreshKey }: TransactionH
                 +${formatTokenAmount(txn.amount)}
               </span>
               <a
-                href={getExplorerUrl(txn.txId)}
+                href={getExplorerUrl(txn.txId, getNetwork())}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="text-xs text-stream-green/70 hover:text-stream-green hover:underline transition-colors"

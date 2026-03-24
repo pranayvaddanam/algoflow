@@ -118,13 +118,16 @@ export function MilestonePayForm({
 
   return (
     <div className="rounded-2xl border border-white/10 bg-white/5 backdrop-blur-[18px] p-6 shadow-lg">
-      <h2 className="font-['Fraunces_Variable'] text-xl font-semibold text-[--text-light] mb-4">
-        Milestone Payment
+      <h2 className="font-['Fraunces_Variable'] text-xl font-semibold text-[--text-light] mb-1">
+        Bonus Payment
       </h2>
+      <p className="text-xs text-text-light/40 mb-4">
+        Send an instant one-time bonus to an employee. Tokens transfer immediately from the contract pool.
+      </p>
 
       {!hasEmployees ? (
         <p className="text-sm text-text-light/50">
-          Register employees first to send milestone payments.
+          Register employees first to send bonus payments.
         </p>
       ) : (
         <form onSubmit={(e) => void handleSubmit(e)} className="space-y-4">
@@ -224,7 +227,7 @@ export function MilestonePayForm({
                 Sending...
               </span>
             ) : (
-              'Send Milestone Payment'
+              'Send Bonus'
             )}
           </button>
         </form>

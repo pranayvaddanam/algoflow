@@ -5,7 +5,7 @@
  * - $/hr (primary, large)
  * - $/day (rate * 24)
  * - $/week (rate * 24 * 7)
- * - $/month (rate * 24 * 30)
+ * - $/month (rate * 730, i.e. 365/12 days * 24 hours)
  * - StatusBadge (Active/Paused)
  * - "New" badge if rate changed since last visit (localStorage comparison)
  */
@@ -89,7 +89,7 @@ export function RateDisplay({ salaryRate, isActive, isGloballyPaused }: RateDisp
   const hourlyRate = salaryRate;
   const dailyRate = salaryRate * 24;
   const weeklyRate = salaryRate * 24 * 7;
-  const monthlyRate = salaryRate * 24 * 30;
+  const monthlyRate = salaryRate * 730;
 
   return (
     <div className="glass rounded-2xl p-6">
@@ -124,24 +124,24 @@ export function RateDisplay({ salaryRate, isActive, isGloballyPaused }: RateDisp
           </div>
 
           {/* Secondary: daily, weekly, monthly */}
-          <div className="grid grid-cols-3 gap-3">
-            <div className="text-center p-2 rounded-lg bg-text-light/5">
-              <p className="font-mono text-sm text-text-light">
+          <div className="grid grid-cols-3 gap-2 overflow-hidden">
+            <div className="text-center p-2 rounded-lg bg-text-light/5 min-w-0">
+              <p className="font-mono text-xs text-text-light truncate">
                 {formatRate(dailyRate)}
               </p>
-              <p className="text-xs text-text-light/40">/day</p>
+              <p className="text-[10px] text-text-light/40">/day</p>
             </div>
-            <div className="text-center p-2 rounded-lg bg-text-light/5">
-              <p className="font-mono text-sm text-text-light">
+            <div className="text-center p-2 rounded-lg bg-text-light/5 min-w-0">
+              <p className="font-mono text-xs text-text-light truncate">
                 {formatRate(weeklyRate)}
               </p>
-              <p className="text-xs text-text-light/40">/week</p>
+              <p className="text-[10px] text-text-light/40">/week</p>
             </div>
-            <div className="text-center p-2 rounded-lg bg-text-light/5">
-              <p className="font-mono text-sm text-text-light">
+            <div className="text-center p-2 rounded-lg bg-text-light/5 min-w-0">
+              <p className="font-mono text-xs text-text-light truncate">
                 {formatRate(monthlyRate)}
               </p>
-              <p className="text-xs text-text-light/40">/month</p>
+              <p className="text-[10px] text-text-light/40">/month</p>
             </div>
           </div>
         </>

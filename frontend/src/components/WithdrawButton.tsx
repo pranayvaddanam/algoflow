@@ -115,6 +115,8 @@ export function WithdrawButton({
         setState({ status: 'error', message: 'Contract is currently paused' });
       } else if (message.includes('insufficient') || message.includes('underflow')) {
         setState({ status: 'error', message: 'Insufficient funds in contract pool' });
+      } else if (message.includes('already in ledger')) {
+        setState({ status: 'error', message: 'Transaction already submitted. Please wait a moment and try again.' });
       } else {
         setState({ status: 'error', message: 'Transaction failed. Please try again.' });
         console.error('[WithdrawButton] Error:', err);

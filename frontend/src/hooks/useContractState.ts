@@ -6,9 +6,9 @@
  * Also fetches local state for the connected address if available.
  */
 
-import { useState, useEffect, useCallback, useRef } from 'react';
+import { useState, useEffect, useCallback, useRef, useMemo } from 'react';
 
-import { getAppId } from '../lib/algorand';
+import { getAlgodClient, getAppId } from '../lib/algorand';
 import { POLL_INTERVAL_MS } from '../lib/constants';
 import { parseGlobalState, parseLocalState } from '../lib/utils';
 import { useAlgoFlowWallet } from './useWallet';
@@ -39,8 +39,12 @@ interface ContractStateHookResult {
  * Returns parsed ContractState and Employee data.
  */
 export function useContractState(): ContractStateHookResult {
-  const { algodClient, activeAddress } = useAlgoFlowWallet();
+  const { activeAddress } = useAlgoFlowWallet();
   const appId = getAppId();
+
+  // Use env-configured client directly — avoids token mismatch with WalletProvider's client.
+  // Memoized so the reference is stable across renders.
+  const algodClient = useMemo(() => getAlgodClient(), []);
 
   const [contractState, setContractState] = useState<ContractState | null>(null);
   const [employeeState, setEmployeeState] = useState<Employee | null>(null);

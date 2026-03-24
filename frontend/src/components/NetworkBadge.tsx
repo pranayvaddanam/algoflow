@@ -21,18 +21,12 @@ export function NetworkBadge() {
   return (
     <span
       className={cn(
-        'inline-flex items-center gap-1.5 rounded-full px-2.5 py-0.5 text-[11px] font-medium tracking-wide uppercase',
+        'inline-flex items-center rounded-full px-2.5 py-0.5 text-[11px] font-medium tracking-wide uppercase',
         isTestnet
           ? 'bg-amber-500/15 text-amber-400 border border-amber-500/30'
           : 'bg-stream-green/10 text-stream-green/70 border border-stream-green/20',
       )}
     >
-      <span
-        className={cn(
-          'w-1.5 h-1.5 rounded-full',
-          isTestnet ? 'bg-amber-400' : 'bg-stream-green/60',
-        )}
-      />
       {isTestnet ? 'Testnet' : 'LocalNet'}
     </span>
   );
