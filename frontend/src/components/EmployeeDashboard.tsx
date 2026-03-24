@@ -80,6 +80,7 @@ export function EmployeeDashboard() {
     isStreaming,
     ratePerSecond,
     resetAccrual,
+    displayRef,
   } = useStreamAccrual({
     salaryRate,
     lastWithdrawal,
@@ -335,6 +336,7 @@ export function EmployeeDashboard() {
             isPaused={!isActive}
             isGloballyPaused={isGloballyPaused}
             ratePerSecond={ratePerSecond}
+            displayRef={displayRef}
           />
         </div>
 

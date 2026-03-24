@@ -38,10 +38,10 @@ interface StreamAccrualParams {
 }
 
 interface StreamAccrualResult {
-  /** Current accrued amount in base units (updates every frame at 60fps). */
+  /** Current accrued amount in base units. */
   accrued: number;
 
-  /** Formatted accrued string with dollar sign and 6 decimals (e.g., "$12,345.678901"). */
+  /** Formatted accrued string with dollar sign and 6 decimals. */
   formattedAccrued: string;
 
   /** Whether the stream is actively ticking. */
@@ -52,6 +52,13 @@ interface StreamAccrualResult {
 
   /** Trigger a reset (e.g., after withdrawal). */
   resetAccrual: () => void;
+
+  /**
+   * Ref to attach to the DOM element displaying the accrued amount.
+   * The RAF loop updates this element's textContent directly at 60fps,
+   * bypassing React re-renders for buttery smooth animation.
+   */
+  displayRef: React.RefObject<HTMLElement | null>;
 }
 
 /**
@@ -90,8 +97,11 @@ export function useStreamAccrual({
 }: StreamAccrualParams): StreamAccrualResult {
   const { getAccrued } = usePayrollContract();
 
-  // Current accrued value in base units
+  // Current accrued value in base units (synced to React state every 2s)
   const [accrued, setAccrued] = useState(0);
+
+  // Ref for direct DOM updates at 60fps (bypasses React re-renders)
+  const displayRef = useRef<HTMLElement | null>(null);
 
   // Whether streaming is active
   const isStreaming = isActive && !isGloballyPaused && salaryRate > 0;
@@ -207,8 +217,8 @@ export function useStreamAccrual({
     void resync();
   }, [employeeAddress, isStreaming, salaryRate, lastWithdrawal, getAccrued, resync]);
 
-  // Throttled update loop: calculate at 60fps precision but only push
-  // React state updates at ~10fps (every 100ms) to avoid re-render spam
+  // RAF loop: update DOM directly at 60fps for buttery smooth counter.
+  // Only syncs to React state every 2 seconds (for other components).
   useEffect(() => {
     if (rafRef.current !== null) {
       cancelAnimationFrame(rafRef.current);
@@ -220,16 +230,21 @@ export function useStreamAccrual({
     }
 
     perfAnchorRef.current = null;
-    let lastStateUpdate = 0;
+    let lastStateSync = 0;
 
     function tick(timestamp: number) {
       const value = calculateAccruedSmooth();
       accruedRef.current = value;
 
-      // Only push to React state every ~100ms (10fps) to reduce re-renders
-      if (timestamp - lastStateUpdate > 100) {
+      // Direct DOM update — no React re-render, true 60fps
+      if (displayRef.current) {
+        displayRef.current.textContent = formatAccrued(value);
+      }
+
+      // Sync to React state every 2 seconds (for WithdrawButton, stats cards)
+      if (timestamp - lastStateSync > 2000) {
         setAccrued(value);
-        lastStateUpdate = timestamp;
+        lastStateSync = timestamp;
       }
 
       rafRef.current = requestAnimationFrame(tick);
@@ -274,5 +289,6 @@ export function useStreamAccrual({
     isStreaming,
     ratePerSecond,
     resetAccrual,
+    displayRef,
   };
 }

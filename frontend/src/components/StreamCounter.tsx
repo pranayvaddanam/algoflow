@@ -32,6 +32,9 @@ interface StreamCounterProps {
 
   /** Rate per second in base units (for "Earning $X.XX/sec" subtitle). */
   ratePerSecond: number;
+
+  /** Ref for direct DOM updates at 60fps — attached to the number element. */
+  displayRef?: React.RefObject<HTMLElement | null>;
 }
 
 /**
@@ -58,6 +61,7 @@ export function StreamCounter({
   isPaused,
   isGloballyPaused,
   ratePerSecond,
+  displayRef,
 }: StreamCounterProps) {
   const showPausedBanner = isPaused || isGloballyPaused;
 
@@ -98,7 +102,9 @@ export function StreamCounter({
         </div>
 
         {/* THE number — large, monospace, stream-green, glowing */}
+        {/* displayRef enables direct DOM updates at 60fps without React re-renders */}
         <div
+          ref={displayRef as React.RefObject<HTMLDivElement>}
           className={cn(
             'font-mono text-5xl md:text-6xl lg:text-7xl font-bold tracking-tight leading-none',
             'transition-all duration-300 ease-out',
