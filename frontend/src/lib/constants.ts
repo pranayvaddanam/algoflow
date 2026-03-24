@@ -21,7 +21,7 @@ export const TX_CONFIRMATION_ROUNDS = 4;
 export const PERA_WALLET_PROJECT_ID = 'algoflow';
 
 /** Interval in milliseconds for polling contract state from the chain. */
-export const POLL_INTERVAL_MS = 5000;
+export const POLL_INTERVAL_MS = 15000;
 
 /** Minimum fee per transaction in microAlgos. */
 export const MIN_TX_FEE = 1000n;

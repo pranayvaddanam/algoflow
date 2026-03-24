@@ -17,8 +17,8 @@ import { useState, useEffect, useRef, useCallback } from 'react';
 import { usePayrollContract } from './usePayrollContract';
 import { ASSET_DECIMALS } from '../lib/constants';
 
-/** Interval for re-syncing with on-chain accrual (30 seconds). */
-const RESYNC_INTERVAL_MS = 30_000;
+/** Interval for re-syncing with on-chain accrual (60 seconds). */
+const RESYNC_INTERVAL_MS = 60_000;
 
 interface StreamAccrualParams {
   /** Hourly salary rate in base units (e.g., 100_000_000 = 100.00 PAYUSD/hr). */
@@ -207,9 +207,9 @@ export function useStreamAccrual({
     void resync();
   }, [employeeAddress, isStreaming, salaryRate, lastWithdrawal, getAccrued, resync]);
 
-  // RAF loop: update accrual every frame at 60fps for smooth counter
+  // Throttled update loop: calculate at 60fps precision but only push
+  // React state updates at ~10fps (every 100ms) to avoid re-render spam
   useEffect(() => {
-    // Cancel any existing RAF
     if (rafRef.current !== null) {
       cancelAnimationFrame(rafRef.current);
       rafRef.current = null;
@@ -219,17 +219,22 @@ export function useStreamAccrual({
       return;
     }
 
-    // Reset performance anchor for clean start
     perfAnchorRef.current = null;
+    let lastStateUpdate = 0;
 
-    function tick() {
+    function tick(timestamp: number) {
       const value = calculateAccruedSmooth();
-      setAccrued(value);
       accruedRef.current = value;
+
+      // Only push to React state every ~100ms (10fps) to reduce re-renders
+      if (timestamp - lastStateUpdate > 100) {
+        setAccrued(value);
+        lastStateUpdate = timestamp;
+      }
+
       rafRef.current = requestAnimationFrame(tick);
     }
 
-    // Start the RAF loop
     rafRef.current = requestAnimationFrame(tick);
 
     return () => {
