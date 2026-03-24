@@ -11,6 +11,7 @@ import { useState } from 'react';
 import { usePayrollContract } from '../hooks/usePayrollContract';
 import { formatTokenAmount, shortenAddress, cn } from '../lib/utils';
 import { ASSET_DECIMALS } from '../lib/constants';
+import { addBonus } from '../lib/bonusTracker';
 
 import type { Employee } from '../types';
 
@@ -21,8 +22,8 @@ interface MilestonePayFormProps {
   /** Contract PAYUSD balance in base units for balance validation. */
   contractBalance: number | null;
 
-  /** Callback invoked after a successful milestone payment. */
-  onSuccess?: () => void;
+  /** Callback invoked after a successful milestone payment with details. */
+  onSuccess?: (employeeAddress: string, amount: number) => void;
 }
 
 type FormStatus = 'idle' | 'loading' | 'success' | 'error';
@@ -96,9 +97,12 @@ export function MilestonePayForm({
       setMessage(
         `Sent $${numericAmount.toFixed(ASSET_DECIMALS)} PAYUSD to ${shortenAddress(selectedEmployee)}`,
       );
+      // Track bonus in localStorage for lifetime earned calculations
+      addBonus(selectedEmployee, baseUnits);
+      const paidEmployee = selectedEmployee;
       setAmount('');
       setSelectedEmployee('');
-      onSuccess?.();
+      onSuccess?.(paidEmployee, baseUnits);
     } catch (err) {
       console.error('[MilestonePayForm] Milestone payment error:', err);
       setStatus('error');

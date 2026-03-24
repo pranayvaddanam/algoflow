@@ -38,3 +38,5 @@ Thumbs.db
 *.teal
 *.map
 artifacts/
+.playwright-mcp/
+generate_ppt.py

@@ -11,6 +11,7 @@ import { useState, useEffect, useRef } from 'react';
 import { usePayrollContract } from '../hooks/usePayrollContract';
 import { shortenAddress, formatTokenAmount, cn } from '../lib/utils';
 import { ASSET_DECIMALS, SECONDS_PER_HOUR } from '../lib/constants';
+import { getTotalBonuses } from '../lib/bonusTracker';
 import { StatusBadge } from './StatusBadge';
 
 import type { Employee } from '../types';
@@ -24,6 +25,9 @@ interface EmployeeRowProps {
 
   /** Callback after any mutation (pause, resume, update, remove). */
   onMutate?: () => void;
+
+  /** Key that changes when bonus data in localStorage is updated. */
+  bonusRefreshKey?: number;
 }
 
 type ActionLoading = 'pause' | 'resume' | 'updateRate' | 'remove' | null;
@@ -39,7 +43,7 @@ type ActionLoading = 'pause' | 'resume' | 'updateRate' | 'remove' | null;
  * - Action buttons with per-action loading states
  * - Confirmation dialog for Remove (destructive)
  */
-export function EmployeeRow({ employee, isGloballyPaused, onMutate }: EmployeeRowProps) {
+export function EmployeeRow({ employee, isGloballyPaused, onMutate, bonusRefreshKey }: EmployeeRowProps) {
   const { pauseStream, resumeStream, updateRate, removeEmployee } = usePayrollContract();
 
   const [actionLoading, setActionLoading] = useState<ActionLoading>(null);
@@ -147,8 +151,12 @@ export function EmployeeRow({ employee, isGloballyPaused, onMutate }: EmployeeRo
     }
   }
 
+  // Include bonuses in the displayed accrued total
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const _bonusKey = bonusRefreshKey; // trigger re-read on bonus updates
+  const bonusTotal = getTotalBonuses(employee.address);
   const displayRate = formatTokenAmount(employee.salaryRate, ASSET_DECIMALS);
-  const displayAccrued = formatTokenAmount(liveAccrued, ASSET_DECIMALS);
+  const displayAccrued = formatTokenAmount(liveAccrued + bonusTotal, ASSET_DECIMALS);
   const isAnyLoading = actionLoading !== null;
 
   return (

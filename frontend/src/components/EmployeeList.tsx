@@ -22,6 +22,9 @@ interface EmployeeListProps {
 
   /** Callback after any employee mutation (pause, resume, update, remove). */
   onMutate?: () => void;
+
+  /** Key that changes when bonus data in localStorage is updated. */
+  bonusRefreshKey?: number;
 }
 
 /**
@@ -37,6 +40,7 @@ export function EmployeeList({
   isGloballyPaused,
   isLoading,
   onMutate,
+  bonusRefreshKey,
 }: EmployeeListProps) {
   return (
     <div className="rounded-2xl border border-white/10 bg-white/5 backdrop-blur-[18px] p-6 shadow-lg">
@@ -100,7 +104,7 @@ export function EmployeeList({
               Status
             </span>
             <span className="text-xs font-medium text-text-light/50 uppercase tracking-wider w-32 text-right">
-              Accrued
+              Total Earned
             </span>
             <span className="text-xs font-medium text-text-light/50 uppercase tracking-wider w-52 text-right">
               Actions
@@ -114,6 +118,7 @@ export function EmployeeList({
               employee={employee}
               isGloballyPaused={isGloballyPaused}
               onMutate={onMutate}
+              bonusRefreshKey={bonusRefreshKey}
             />
           ))}
         </div>

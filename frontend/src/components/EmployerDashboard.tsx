@@ -113,6 +113,9 @@ export function EmployerDashboard() {
   // Whether the contract is opted into the salary ASA
   const [isAsaOptedIn, setIsAsaOptedIn] = useState(false);
 
+  // Bump this key to force EmployeeRow to re-read bonus data from localStorage
+  const [bonusRefreshKey, setBonusRefreshKey] = useState(0);
+
   // Ref to avoid stale closures in interval
   const trackedRef = useRef(trackedAddresses);
   trackedRef.current = trackedAddresses;
@@ -289,11 +292,16 @@ export function EmployerDashboard() {
   }
 
   /**
-   * Handle successful milestone payment — refresh balances.
+   * Handle successful milestone payment — refresh balances and employee states.
    */
-  function handleMilestoneSuccess() {
+  function handleMilestoneSuccess(_employeeAddress: string, _amount: number) {
+    // Force EmployeeRow to re-read bonus data from localStorage
+    setBonusRefreshKey((prev) => prev + 1);
+
+    // Refresh all data after chain confirmation
     scheduleRefresh(() => {
       void fetchContractBalance();
+      void fetchEmployeeStates();
       void refreshContract();
     }, 2000);
   }
@@ -484,6 +492,7 @@ export function EmployerDashboard() {
               isGloballyPaused={isGloballyPaused}
               isLoading={isEmployeesLoading}
               onMutate={handleEmployeeMutate}
+              bonusRefreshKey={bonusRefreshKey}
             />
             <p className="text-[11px] text-text-light/40 mt-2 px-1">
               Auto-discovered from linked wallet accounts and registration history.

@@ -7,7 +7,7 @@
  * banner when runway drops below 24 hours.
  */
 
-import { useState, useEffect, useCallback, useMemo } from 'react';
+import { useState, useEffect, useCallback, useMemo, useRef } from 'react';
 
 import { useAlgoFlowWallet } from '../hooks/useWallet';
 import { getAppId, getApplicationAddress } from '../lib/algorand';
@@ -78,10 +78,42 @@ export function ContractHealth({
     [employees],
   );
 
+  // Real-time balance ticker: decrements based on burn rate every second
+  const [displayBalance, setDisplayBalance] = useState<number | null>(null);
+  const balanceAnchorRef = useRef<number | null>(null);
+  const anchorTimeRef = useRef<number>(0);
+
+  // Re-anchor when the on-chain balance updates
+  useEffect(() => {
+    if (contractBalance !== null) {
+      balanceAnchorRef.current = contractBalance;
+      anchorTimeRef.current = Date.now() / 1000;
+      setDisplayBalance(contractBalance);
+    }
+  }, [contractBalance]);
+
+  // Tick down every second based on burn rate
+  useEffect(() => {
+    if (totalBurnRate === 0 || balanceAnchorRef.current === null) return;
+
+    const interval = setInterval(() => {
+      if (balanceAnchorRef.current !== null) {
+        const elapsed = Date.now() / 1000 - anchorTimeRef.current;
+        const burned = (totalBurnRate * elapsed) / 3600;
+        setDisplayBalance(Math.max(0, balanceAnchorRef.current - burned));
+      }
+    }, 1000);
+
+    return () => clearInterval(interval);
+  }, [totalBurnRate]);
+
+  // Effective balance for display (real-time ticking or static)
+  const effectiveBalance = totalBurnRate > 0 && displayBalance !== null ? displayBalance : contractBalance;
+
   // Compute runway in hours
   const runwayHours =
-    contractBalance !== null && totalBurnRate > 0
-      ? contractBalance / totalBurnRate
+    effectiveBalance !== null && totalBurnRate > 0
+      ? effectiveBalance / totalBurnRate
       : null;
 
   const isGloballyPaused = contractState?.isPaused ?? false;
@@ -114,18 +146,16 @@ export function ContractHealth({
         <div>
           <span className="text-xs text-text-light/50 uppercase tracking-wider inline-flex items-center gap-1.5">
             PAYUSD Balance
-            <span className="relative group cursor-help">
-              <svg className="h-3.5 w-3.5 text-text-light/30 hover:text-text-light/50 transition-colors" viewBox="0 0 20 20" fill="currentColor">
-                <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a.75.75 0 000 1.5h.253a.25.25 0 01.244.304l-.459 2.066A1.75 1.75 0 0010.747 15H11a.75.75 0 000-1.5h-.253a.25.25 0 01-.244-.304l.459-2.066A1.75 1.75 0 009.253 9H9z" clipRule="evenodd" />
-              </svg>
-              <span className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-2.5 py-1.5 rounded-lg bg-[--bg-dark] border border-white/15 text-[10px] text-text-light/70 whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none shadow-lg z-10">
-                Updates after withdrawals
+            {totalBurnRate > 0 && (
+              <span className="inline-flex items-center gap-1">
+                <span className="w-1.5 h-1.5 rounded-full bg-stream-green animate-pulse" />
+                <span className="text-[10px] text-stream-green/70">LIVE</span>
               </span>
-            </span>
+            )}
           </span>
           <p className="font-mono text-2xl font-bold text-text-light mt-1">
-            {contractBalance !== null
-              ? `$${Number(formatTokenAmount(contractBalance, ASSET_DECIMALS)).toLocaleString('en-US', { minimumFractionDigits: ASSET_DECIMALS, maximumFractionDigits: ASSET_DECIMALS })}`
+            {effectiveBalance !== null
+              ? `$${Number(formatTokenAmount(Math.round(effectiveBalance), ASSET_DECIMALS)).toLocaleString('en-US', { minimumFractionDigits: ASSET_DECIMALS, maximumFractionDigits: ASSET_DECIMALS })}`
               : '---'}
           </p>
         </div>
