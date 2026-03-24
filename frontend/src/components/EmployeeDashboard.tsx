@@ -27,7 +27,6 @@ import { WithdrawButton } from './WithdrawButton';
 import { RateDisplay } from './RateDisplay';
 import { TransactionHistory } from './TransactionHistory';
 import { formatTokenAmount, formatTimestamp, formatRelativeTime, shortenAddress, cn } from '../lib/utils';
-import { getTotalBonuses } from '../lib/bonusTracker';
 
 /**
  * Employee Dashboard component.
@@ -365,10 +364,10 @@ export function EmployeeDashboard() {
           </div>
           <div className="glass rounded-xl p-4 text-center">
             <p className="text-xs text-text-light/40 uppercase tracking-wider mb-1">
-              Lifetime Earned
+              Salary Rate
             </p>
             <p className="font-mono text-lg text-stream-green">
-              ${formatTokenAmount(totalWithdrawn + accrued + (activeAddress ? getTotalBonuses(activeAddress) : 0))}
+              ${formatTokenAmount(salaryRate)}/hr
             </p>
           </div>
         </div>

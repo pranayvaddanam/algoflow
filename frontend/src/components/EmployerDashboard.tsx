@@ -298,7 +298,12 @@ export function EmployerDashboard() {
     // Force EmployeeRow to re-read bonus data from localStorage
     setBonusRefreshKey((prev) => prev + 1);
 
-    // Refresh all data after chain confirmation
+    // Immediate refresh attempt
+    void fetchContractBalance();
+    void fetchEmployeeStates();
+    void refreshContract();
+
+    // Follow-up refresh after chain confirmation
     scheduleRefresh(() => {
       void fetchContractBalance();
       void fetchEmployeeStates();

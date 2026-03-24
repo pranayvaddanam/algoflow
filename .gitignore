@@ -38,5 +38,15 @@ Thumbs.db
 *.teal
 *.map
 artifacts/
+
+# Claude Code / AI prompts (not for public repos)
+.claude/
 .playwright-mcp/
+CLAUDE.md
+TALKING_POINTS.md
 generate_ppt.py
+
+# Maestro orchestration internals
+orchestrator/
+sprints/
+docs/
