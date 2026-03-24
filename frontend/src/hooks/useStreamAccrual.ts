@@ -154,12 +154,20 @@ export function useStreamAccrual({
 
   /**
    * Reset accrual to zero (called after withdrawal).
+   * Also resets the display ref and anchors so the counter restarts from 0.
    */
   const resetAccrual = useCallback(() => {
     setAccrued(0);
     accruedRef.current = 0;
-    // Reset performance anchor so next frame recalculates cleanly
-    perfAnchorRef.current = null;
+    // Reset anchors — next tick recalculates from current time
+    perfAnchorRef.current = performance.now();
+    wallAnchorRef.current = Date.now() / 1000;
+    // Update lastWithdrawal ref to NOW so elapsed calculation starts from 0
+    lastWithdrawalRef.current = Math.floor(Date.now() / 1000);
+    // Clear the display ref immediately
+    if (displayRef.current) {
+      displayRef.current.textContent = '$0.000000';
+    }
   }, []);
 
   /**
